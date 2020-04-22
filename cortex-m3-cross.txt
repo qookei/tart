@@ -1,0 +1,50 @@
+[binaries]
+c = 'clang'
+cpp = 'clang++'
+ld = 'lld'
+strip = 'arm-none-eabi-strip'
+objcopy = 'arm-none-eabi-objcopy'
+size = 'arm-none-eabi-size'
+
+[properties]
+needs_exe_wrapper = true
+
+sizeof_int = 4
+sizeof_wchar_t = 4
+sizeof_void* = 4
+
+alignment_char = 1
+alignment_void* = 4
+alignment_double = 4
+
+has_function_printf = false
+
+cpp_args = [
+	'-target', 'arm-none-eabi',
+	'-ffreestanding',
+	'-mtune=cortex-m3',
+	'-msoft-float',
+	'-ffunction-sections',
+	'-fdata-sections',
+	'-mthumb',
+	'-fno-common',
+	'-nostdlib',
+	'-mcpu=cortex-m3']
+
+cpp_link_args = [
+	'-target', 'arm-none-eabi',
+	'-ffreestanding',
+	'-mtune=cortex-m3',
+	'-msoft-float',
+	'-ffunction-sections',
+	'-fdata-sections',
+	'-mthumb',
+	'-fno-common',
+	'-mcpu=cortex-m3',
+	'-nostdlib']
+
+[host_machine]
+system = 'bare'
+cpu_family = 'arm'
+cpu = 'cortex-m3'
+endian = 'little'

@@ -1,0 +1,3 @@
+[submodule "subprojects/libarch"]
+	path = subprojects/libarch
+	url = https://github.com/managarm/libarch

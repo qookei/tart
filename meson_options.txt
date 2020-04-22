@@ -1,0 +1,1 @@
+option('platform', type: 'combo', choices: ['stm32f103x8'])
