@@ -14,16 +14,16 @@ namespace platform::gpio {
 		0x40011800
 	};
 
-	enum class mode {
-		input,
+	enum class mode : uint8_t {
+		input = 0,
 		output_10mhz,
 		output_2mhz,
 		output_50mhz
 	};
 
-	enum class conf {
+	enum class conf : uint8_t {
 		// input
-		analog,
+		analog = 0,
 		floating,
 		pull_up_down,
 
@@ -35,7 +35,7 @@ namespace platform::gpio {
 	};
 
 	enum class bank {
-		a,
+		a = 0,
 		b,
 		c,
 		d,

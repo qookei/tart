@@ -20,15 +20,13 @@ void setup_pin(bank b, int pin, mode m, conf c) {
 	}
 
 	if (pin < 8)
-		space.store(reg::cr_low, (space.load(reg::cr_low)
-				& ~cr::pin_mode[pin] & ~cr::pin_conf[pin])
-				| cr::pin_mode[pin](m)
-				| cr::pin_conf[pin](c));
+		space.store(reg::cr_low, space.load(reg::cr_low)
+				/ cr::pin_mode[pin](m)
+				/ cr::pin_conf[pin](c));
 	else
-		space.store(reg::cr_high, (space.load(reg::cr_high)
-				& ~cr::pin_mode[pin] & ~cr::pin_conf[pin])
-				| cr::pin_mode[pin](m)
-				| cr::pin_conf[pin](c));
+		space.store(reg::cr_high, space.load(reg::cr_high)
+				/ cr::pin_mode[pin - 8](m)
+				/ cr::pin_conf[pin - 8](c));
 
 }
 

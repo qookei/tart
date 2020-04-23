@@ -41,17 +41,17 @@ void init(int nth, int baud, parity par, stop_bits stop) {
 
 	usart.store(reg::baud, (this_clock + baud / 2) / baud);
 	usart.store(reg::cr1, usart.load(reg::cr1)
-			| cr1::word_length(false)
-			| cr1::parity_enable(par_en)
-			| cr1::parity(par_mod)
-			| cr1::transmit_enable(true)
-			| cr1::receive_enable(true));
+			/ cr1::word_length(false)
+			/ cr1::parity_enable(par_en)
+			/ cr1::parity(par_mod)
+			/ cr1::transmit_enable(true)
+			/ cr1::receive_enable(true));
 	usart.store(reg::cr2, usart.load(reg::cr2)
-			| cr2::stop_bits(stop));
+			/ cr2::stop_bits(stop));
 	usart.store(reg::cr3, usart.load(reg::cr3)
-			| cr3::crs(false) | cr3::rts(false));
+			/ cr3::crs(false) / cr3::rts(false));
 	usart.store(reg::cr1, usart.load(reg::cr1)
-			| cr1::usart_enable(true));
+			/ cr1::usart_enable(true));
 }
 
 void send(int nth, uint8_t value) {
