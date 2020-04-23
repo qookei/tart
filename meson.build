@@ -3,7 +3,6 @@ project('tart', 'cpp',
 	default_options: [
 		'warning_level=2',
 		'buildtype=minsize',
-#		'b_lto=true',
 		'cpp_std=c++2a'])
 
 objcopy = find_program('objcopy')
@@ -14,10 +13,16 @@ inc = include_directories('src')
 
 subdir('src/platform')
 
-cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti']
+cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-DCXXSHIM_INTEGRATE_GCC']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
+frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
+cxxshim = subproject('cxxshim')
 libarch = subproject('libarch', default_options: ['install_headers=false'])
+
+frigg_dep = frigg.get_variable('frigg_dep')
+cxxshim_dep = cxxshim.get_variable('cxxshim_dep')
+cxxshim_clang_coro_dep = cxxshim.get_variable('clang_coroutine_dep')
 libarch_dep = libarch.get_variable('libarch_dep')
 
 sources = [
@@ -29,7 +34,7 @@ sources = [
 
 elf = executable('tart.elf', sources,
 		include_directories: inc,
-		dependencies: [libarch_dep],
+		dependencies: [frigg_dep, cxxshim_dep, cxxshim_clang_coro_dep, libarch_dep],
 		cpp_args: [cpp_args],
 		link_args: [link_args],
 		link_depends: [files(platform_ld, this_platform_ld)])

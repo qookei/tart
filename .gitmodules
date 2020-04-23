@@ -1,3 +1,9 @@
 [submodule "subprojects/libarch"]
 	path = subprojects/libarch
 	url = https://github.com/managarm/libarch
+[submodule "subprojects/frigg"]
+	path = subprojects/frigg
+	url = https://github.com/managarm/frigg/
+[submodule "subprojects/cxxshim"]
+	path = subprojects/cxxshim
+	url = https://github.com/managarm/cxxshim/
