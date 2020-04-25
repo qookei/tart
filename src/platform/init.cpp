@@ -25,7 +25,7 @@ struct vector_table {
 
 extern "C" uint32_t _stack;
 
-[[gnu::section(".vectors")]]
+[[gnu::section(".vectors"), gnu::used]]
 vector_table _vec = {
 	.stack = &_stack,
 	.reset = platform::entry,

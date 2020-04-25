@@ -2,6 +2,7 @@ project('tart', 'cpp',
 	version: '0.1',
 	default_options: [
 		'warning_level=2',
+		'b_lto=true',
 		'buildtype=minsize',
 		'cpp_std=c++2a'])
 
@@ -13,7 +14,7 @@ inc = include_directories('src')
 
 subdir('src/platform')
 
-cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-DCXXSHIM_INTEGRATE_GCC']
+cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
@@ -28,7 +29,9 @@ libarch_dep = libarch.get_variable('libarch_dep')
 sources = [
 	platform_sources,
 	files(
-		'src/lib/string.cpp'
+		'src/lib/string.cpp',
+		'src/lib/logger.cpp',
+		'src/mem/mem.cpp'
 	)
 ]
 
@@ -36,7 +39,7 @@ elf = executable('tart.elf', sources,
 		include_directories: inc,
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_clang_coro_dep, libarch_dep],
 		cpp_args: [cpp_args],
-		link_args: [link_args],
+		link_args: [link_args, '-lgcc'],
 		link_depends: [files(platform_ld, this_platform_ld)])
 
 bin = custom_target('tart.bin',

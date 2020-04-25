@@ -33,6 +33,7 @@ cpp_args = [
 
 cpp_link_args = [
 	'-target', 'arm-none-eabi',
+	'-L/usr/lib/gcc/arm-none-eabi/9.3.0',
 	'-ffreestanding',
 	'-mtune=cortex-m3',
 	'-msoft-float',
