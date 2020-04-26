@@ -9,6 +9,7 @@ namespace platform::usart {
 void init(int nth, int baud, parity par, stop_bits stop) {
 	auto &usart = usart_space[nth - 1];
 
+	// TODO: determine based on nth
 	gpio::setup_pin(gpio::bank::a, 9, gpio::mode::output_50mhz, gpio::conf::af_push_pull);
 
 	// TODO: get from rcc code

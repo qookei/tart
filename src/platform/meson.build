@@ -8,6 +8,7 @@ if this_platform == 'stm32f103x8'
 		'stm32f103x8/rcc.cpp',
 		'stm32f103x8/flash.cpp',
 		'stm32f103x8/usart.cpp',
+		'stm32f103x8/spi.cpp',
 		'stm32f103x8/gpio.cpp'
 	)
 endif
