@@ -1,7 +1,7 @@
 #include "../platform.hpp"
 #include "rcc.hpp"
 #include "usart.hpp"
-#include "gpio.hpp"
+#include <periph/gpio.hpp>
 #include "spi.hpp"
 
 #include <lib/logger.hpp>
@@ -75,7 +75,7 @@ void systick() {
 }
 
 static void spi_vendor(uint8_t &manufacturer, uint8_t &device) {
-	gpio::set_pin(gpio::bank::a, 3, false);
+	gpio::set(gpio::pa3, false);
 
 	spi::transfer(1, 0x90);
 	spi::transfer(1, 0x00);
@@ -85,11 +85,11 @@ static void spi_vendor(uint8_t &manufacturer, uint8_t &device) {
 	manufacturer = spi::transfer(1, 0);
 	device = spi::transfer(1, 0);
 
-	gpio::set_pin(gpio::bank::a, 3, true);
+	gpio::set(gpio::pa3, true);
 }
 
 static void spi_read(uint8_t *buffer, uint32_t address, size_t size) {
-	gpio::set_pin(gpio::bank::a, 3, false);
+	gpio::set(gpio::pa3, false);
 	spi::transfer(1, 0x03);
 	spi::transfer(1, (address >> 16) & 0xFF);
 	spi::transfer(1, (address >> 8)  & 0xFF);
@@ -98,7 +98,7 @@ static void spi_read(uint8_t *buffer, uint32_t address, size_t size) {
 	for (size_t i = 0; i < size; i++)
 		*buffer++ = spi::transfer(1, 0);
 
-	gpio::set_pin(gpio::bank::a, 3, true);
+	gpio::set(gpio::pa3, true);
 }
 
 constexpr size_t bytes_per_line = 16;
@@ -133,10 +133,10 @@ void buffer_pretty_print(const void *buf, size_t size) {
 }
 
 void run() {
-	gpio::setup_pin(gpio::bank::a, 3, gpio::mode::output_50mhz, gpio::conf::push_pull);
-	gpio::setup_pin(gpio::bank::b, 12, gpio::mode::output_50mhz, gpio::conf::push_pull);
-	gpio::set_pin(gpio::bank::a, 3, true);
-	gpio::set_pin(gpio::bank::b, 12, true);
+	gpio::setup(gpio::pa3, gpio::mode::output_50mhz, gpio::config::push_pull);
+	gpio::setup(gpio::pb12, gpio::mode::output_50mhz, gpio::config::push_pull);
+	gpio::set(gpio::pa3, true);
+	gpio::set(gpio::pb12, true);
 	lib::log("tart: hello!\r\n");
 	lib::log("tart: running frg::slab_pool test code!\r\n");
 	mem::test();

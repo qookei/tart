@@ -2,7 +2,7 @@
 #include "usart_reg.hpp"
 
 #include "rcc.hpp"
-#include "gpio.hpp"
+#include <periph/gpio.hpp>
 
 namespace platform::usart {
 
@@ -10,7 +10,7 @@ void init(int nth, int baud, parity par, stop_bits stop) {
 	auto &usart = usart_space[nth - 1];
 
 	// TODO: determine based on nth
-	gpio::setup_pin(gpio::bank::a, 9, gpio::mode::output_50mhz, gpio::conf::af_push_pull);
+	gpio::setup(gpio::pa9, gpio::mode::output_50mhz, gpio::config::push_pull, true);
 
 	// TODO: get from rcc code
 	constexpr int apb2_clock = 72000000;

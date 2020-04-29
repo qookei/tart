@@ -1,7 +1,5 @@
 #pragma once
 
-#include "gpio.hpp"
-
 #include <stdint.h>
 #include <stddef.h>
 
@@ -17,25 +15,25 @@ namespace platform::gpio::reg {
 } // namespace platform::gpio::reg
 
 namespace platform::gpio::cr {
-	static constexpr arch::field<uint32_t, mode> pin_mode[8] = {
-		arch::field<uint32_t, mode>{0, 2},
-		arch::field<uint32_t, mode>{4, 2},
-		arch::field<uint32_t, mode>{8, 2},
-		arch::field<uint32_t, mode>{12, 2},
-		arch::field<uint32_t, mode>{16, 2},
-		arch::field<uint32_t, mode>{20, 2},
-		arch::field<uint32_t, mode>{24, 2},
-		arch::field<uint32_t, mode>{28, 2},
+	static constexpr arch::field<uint32_t, uint8_t> pin_mode[8] = {
+		arch::field<uint32_t, uint8_t>{0, 2},
+		arch::field<uint32_t, uint8_t>{4, 2},
+		arch::field<uint32_t, uint8_t>{8, 2},
+		arch::field<uint32_t, uint8_t>{12, 2},
+		arch::field<uint32_t, uint8_t>{16, 2},
+		arch::field<uint32_t, uint8_t>{20, 2},
+		arch::field<uint32_t, uint8_t>{24, 2},
+		arch::field<uint32_t, uint8_t>{28, 2},
 	};
 
-	static constexpr arch::field<uint32_t, conf> pin_conf[8] = {
-		arch::field<uint32_t, conf>{2, 2},
-		arch::field<uint32_t, conf>{6, 2},
-		arch::field<uint32_t, conf>{10, 2},
-		arch::field<uint32_t, conf>{14, 2},
-		arch::field<uint32_t, conf>{18, 2},
-		arch::field<uint32_t, conf>{22, 2},
-		arch::field<uint32_t, conf>{26, 2},
-		arch::field<uint32_t, conf>{30, 2},
+	static constexpr arch::field<uint32_t, uint8_t> pin_conf[8] = {
+		arch::field<uint32_t, uint8_t>{2, 2},
+		arch::field<uint32_t, uint8_t>{6, 2},
+		arch::field<uint32_t, uint8_t>{10, 2},
+		arch::field<uint32_t, uint8_t>{14, 2},
+		arch::field<uint32_t, uint8_t>{18, 2},
+		arch::field<uint32_t, uint8_t>{22, 2},
+		arch::field<uint32_t, uint8_t>{26, 2},
+		arch::field<uint32_t, uint8_t>{30, 2},
 	};
 } // namespace platform::gpio::cr

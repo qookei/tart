@@ -2,7 +2,7 @@
 #include "spi_reg.hpp"
 
 #include "rcc.hpp"
-#include "gpio.hpp"
+#include <periph/gpio.hpp>
 
 namespace platform::spi {
 
@@ -13,15 +13,15 @@ void init(int nth, int clock_divisor, int mode, bool msb, size s) {
 
 	switch(nth) {
 		case 1:
-			gpio::setup_pin(gpio::bank::a, 5, gpio::mode::output_50mhz, gpio::conf::af_push_pull); // SCK
-			gpio::setup_pin(gpio::bank::a, 6, gpio::mode::input, gpio::conf::floating); // MISO
-			gpio::setup_pin(gpio::bank::a, 7, gpio::mode::output_50mhz, gpio::conf::af_push_pull); // MOSI
+			gpio::setup(gpio::pa5, gpio::mode::output_50mhz, gpio::config::push_pull, true); // SCK
+			gpio::setup(gpio::pa6, gpio::mode::input, gpio::config::floating); // MISO
+			gpio::setup(gpio::pa7, gpio::mode::output_50mhz, gpio::config::push_pull, true); // MOSI
 			rcc::set_periph_enable(rcc::periph::spi1, true);
 			break;
 		case 2:
-			gpio::setup_pin(gpio::bank::b, 13, gpio::mode::output_50mhz, gpio::conf::af_push_pull); // SCK
-			gpio::setup_pin(gpio::bank::b, 14, gpio::mode::input, gpio::conf::floating); // MISO
-			gpio::setup_pin(gpio::bank::b, 15, gpio::mode::output_50mhz, gpio::conf::af_push_pull); // MOSI
+			gpio::setup(gpio::pb13, gpio::mode::output_50mhz, gpio::config::push_pull, true); // SCK
+			gpio::setup(gpio::pb14, gpio::mode::input, gpio::config::floating); // MISO
+			gpio::setup(gpio::pb15, gpio::mode::output_50mhz, gpio::config::push_pull, true); // MOSI
 			rcc::set_periph_enable(rcc::periph::spi2, true);
 			break;
 	}

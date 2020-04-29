@@ -1,14 +1,27 @@
-#include "gpio.hpp"
-#include "gpio_reg.hpp"
+#include <periph/gpio.hpp>
 
+#include <arch/arm/mem_space.hpp>
+#include "gpio_reg.hpp"
 #include "rcc.hpp"
 
-namespace platform::gpio {
+namespace gpio {
 
 static bool rcc_gpio_en[5];
 
-void setup_pin(bank b, int pin, mode m, conf c) {
-	int bidx = static_cast<int>(b);
+static constexpr arch::mem_space gpio_space[5] = {
+	0x40010800,
+	0x40010C00,
+	0x40011000,
+	0x40011400,
+	0x40011800
+};
+
+void setup(pin p, mode d, config c, bool alt_fn) {
+	using namespace platform;
+	using namespace platform::gpio;
+
+	int pidx = p.p;
+	int bidx = static_cast<int>(p.b);
 	auto &space = gpio_space[bidx];
 
 	if (!rcc_gpio_en[bidx]) {
@@ -19,29 +32,38 @@ void setup_pin(bank b, int pin, mode m, conf c) {
 		rcc_gpio_en[bidx] = true;
 	}
 
-	if (pin < 8)
+	uint8_t c_ = static_cast<uint8_t>(c);
+	uint8_t m_ = static_cast<uint8_t>(d);
+
+	if (d != mode::input && alt_fn)
+		c_ += 2;
+
+	if (pidx < 8)
 		space.store(reg::cr_low, space.load(reg::cr_low)
-				/ cr::pin_mode[pin](m)
-				/ cr::pin_conf[pin](c));
+				/ cr::pin_mode[pidx](m_)
+				/ cr::pin_conf[pidx](c_));
 	else
 		space.store(reg::cr_high, space.load(reg::cr_high)
-				/ cr::pin_mode[pin - 8](m)
-				/ cr::pin_conf[pin - 8](c));
-
+				/ cr::pin_mode[pidx - 8](m_)
+				/ cr::pin_conf[pidx - 8](c_));
 }
 
-void set_pin(bank b, int pin, bool high) {
-	int bidx = static_cast<int>(b);
+void set(pin p, bool b) {
+	using namespace platform::gpio;
+	int pidx = p.p;
+	int bidx = static_cast<int>(p.b);
 	auto &space = gpio_space[bidx];
 
-	space.store(reg::bit_set_reset, 1 << (high ? pin : pin + 16));
+	space.store(reg::bit_set_reset, 1 << (b ? pidx : pidx + 16));
 }
 
-bool get_pin(bank b, int pin) {
-	int bidx = static_cast<int>(b);
+bool get(pin p) {
+	using namespace platform::gpio;
+	int pidx = p.p;
+	int bidx = static_cast<int>(p.b);
 	auto &space = gpio_space[bidx];
 
-	return space.load(reg::input_data) & (1 << pin);
+	return space.load(reg::input_data) & (1 << pidx);
 }
 
 } // namespace platform::gpio
