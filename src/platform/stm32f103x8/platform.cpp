@@ -3,6 +3,7 @@
 #include "usart.hpp"
 #include <periph/gpio.hpp>
 #include <periph/spi.hpp>
+#include <periph/transmit.hpp>
 
 #include <lib/logger.hpp>
 #include <lib/string.hpp>
@@ -75,38 +76,23 @@ void systick() {
 	while(1);
 }
 
-static uint8_t spi_transfer(spi::spi_dev &s, uint8_t val) {
-	s.send(val);
-	while (!s.is_receive_not_empty());
-	return s.recv();
-}
-
-static void spi_vendor(spi::spi_dev &dev, uint8_t &manufacturer, uint8_t &device) {
-	dev.select();
-
-	spi_transfer(dev, 0x90);
-	spi_transfer(dev, 0x00);
-	spi_transfer(dev, 0x00);
-	spi_transfer(dev, 0x00);
-
-	manufacturer = spi_transfer(dev, 0);
-	device = spi_transfer(dev, 0);
-
-	dev.deselect();
+static void spi_vendor(spi::spi_dev &dev, uint8_t &vendor, uint8_t &device) {
+	transmit::do_transmission(dev,
+		transmit::send_bytes(0x90, 0, 0, 0),
+		transmit::recv_bytes(vendor, device)
+	);
 }
 
 static void spi_read(spi::spi_dev &dev, uint8_t *buffer, uint32_t address, size_t size) {
-	dev.select();
-
-	spi_transfer(dev, 0x03);
-	spi_transfer(dev, (address >> 16) & 0xFF);
-	spi_transfer(dev, (address >> 8)  & 0xFF);
-	spi_transfer(dev, (address)       & 0xFF);
-
-	for (size_t i = 0; i < size; i++)
-		*buffer++ = spi_transfer(dev, 0);
-
-	dev.deselect();
+	transmit::do_transmission(dev,
+		transmit::send_bytes(
+			0x03,
+			(address >> 16) & 0xFF,
+			(address >> 8) & 0xFF,
+			(address) & 0xFF
+		),
+		transmit::recv_buffer(buffer, size)
+	);
 }
 
 constexpr size_t bytes_per_line = 16;

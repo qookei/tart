@@ -19,20 +19,20 @@ void *memset(void *dest, int value, size_t size) {
 	return dest;
 }
 
-extern "C" [[gnu::used]] void *__aeabi_memclr4(void *dest, size_t size) {
-	char *d = static_cast<char *>(dest);
+extern "C" {
+	[[gnu::used]] void *__aeabi_memclr4(void *dest, size_t size) {
+		return memset(dest, 0, size);
+	}
 
-	while (size--)
-		*d++ = 0;
+	[[gnu::used]] void *__aeabi_memclr8(void *dest, size_t size) {
+		return memset(dest, 0, size);
+	}
 
-	return dest;
-}
+	[[gnu::used]] void *__aeabi_memcpy(void *dest, const void *src, size_t size) {
+		return memcpy(dest, src, size);
+	}
 
-extern "C" [[gnu::used]] void *__aeabi_memclr8(void *dest, size_t size) {
-	char *d = static_cast<char *>(dest);
-
-	while (size--)
-		*d++ = 0;
-
-	return dest;
+	[[gnu::used]] void *__aeabi_memcpy4(void *dest, const void *src, size_t size) {
+		return memcpy(dest, src, size);
+	}
 }
