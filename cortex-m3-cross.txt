@@ -21,6 +21,8 @@ has_function_printf = false
 
 cpp_args = [
 	'-target', 'arm-none-eabi',
+	'-I/usr/arm-none-eabi/include/9.3.0',
+	'-I/usr/arm-none-eabi/include/9.3.0/arm-none-eabi/thumb/v7-m/nofp',
 	'-ffreestanding',
 	'-mtune=cortex-m3',
 	'-msoft-float',

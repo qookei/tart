@@ -94,7 +94,7 @@ void run() {
 
 	lib::log("tart: reading 128 bytes:\r\n");
 	flash.read(buf, 0, 128);
-	log::dump_buffer(buf, 128);
+	lib::dump_buffer(buf, 128);
 
 	while(1);
 }

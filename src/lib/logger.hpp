@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+
 namespace lib {
 
 void log(const char *fmt, ...);
