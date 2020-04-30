@@ -4,6 +4,7 @@
 #include <periph/gpio.hpp>
 #include <periph/spi.hpp>
 #include <periph/transmit.hpp>
+#include <drivers/w25x.hpp>
 
 #include <lib/logger.hpp>
 #include <lib/string.hpp>
@@ -76,25 +77,6 @@ void systick() {
 	while(1);
 }
 
-static void spi_vendor(spi::spi_dev &dev, uint8_t &vendor, uint8_t &device) {
-	transmit::do_transmission(dev,
-		transmit::send_bytes(0x90, 0, 0, 0),
-		transmit::recv_bytes(vendor, device)
-	);
-}
-
-static void spi_read(spi::spi_dev &dev, uint8_t *buffer, uint32_t address, size_t size) {
-	transmit::do_transmission(dev,
-		transmit::send_bytes(
-			0x03,
-			(address >> 16) & 0xFF,
-			(address >> 8) & 0xFF,
-			(address) & 0xFF
-		),
-		transmit::recv_buffer(buffer, size)
-	);
-}
-
 constexpr size_t bytes_per_line = 16;
 
 #define min(x, y) ((x) > (y) ? (y) : (x))
@@ -127,7 +109,6 @@ void buffer_pretty_print(const void *buf, size_t size) {
 }
 
 void run() {
-	spi::spi_dev dev{spi::get_spi(1), gpio::pa3};
 	lib::log("tart: hello!\r\n");
 	lib::log("tart: running frg::slab_pool test code!\r\n");
 	mem::test();
@@ -135,12 +116,15 @@ void run() {
 	uint8_t buf[128];
 	lib::log("tart: trying out SPI1!\r\n");
 
-	uint8_t m, d;
-	spi_vendor(dev, m, d);
-	lib::log("tart: manufacturer = %02x, device = %02x\r\n", m, d);
+	spi::spi_dev dev{spi::get_spi(1), gpio::pa3};
+	drivers::w25x_flash flash{&dev};
+
+	uint8_t vendor, device;
+	flash.vendor_info(vendor, device);
+	lib::log("tart: vendor = %02x, device = %02x\r\n", vendor, device);
 
 	lib::log("tart: reading 128 bytes:\r\n");
-	spi_read(dev, buf, 0, 128);
+	flash.read(buf, 0, 128);
 	buffer_pretty_print(buf, 128);
 
 	while(1);

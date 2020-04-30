@@ -31,7 +31,8 @@ sources = [
 	files(
 		'src/lib/string.cpp',
 		'src/lib/logger.cpp',
-		'src/mem/mem.cpp'
+		'src/mem/mem.cpp',
+		'src/drivers/w25x.cpp'
 	)
 ]
 
