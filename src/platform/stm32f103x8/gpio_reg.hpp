@@ -5,16 +5,16 @@
 
 #include <arch/register.hpp>
 
-namespace platform::gpio::reg {
+namespace gpio::reg {
 	static constexpr arch::bit_register<uint32_t> cr_low{0x00};
 	static constexpr arch::bit_register<uint32_t> cr_high{0x04};
 	static constexpr arch::scalar_register<uint32_t> input_data{0x08};
 	static constexpr arch::scalar_register<uint32_t> output_data{0x0C};
 	static constexpr arch::scalar_register<uint32_t> bit_set_reset{0x10};
 	static constexpr arch::scalar_register<uint32_t> bit_reset{0x14};
-} // namespace platform::gpio::reg
+} // namespace gpio::reg
 
-namespace platform::gpio::cr {
+namespace gpio::cr {
 	static constexpr arch::field<uint32_t, uint8_t> pin_mode[8] = {
 		arch::field<uint32_t, uint8_t>{0, 2},
 		arch::field<uint32_t, uint8_t>{4, 2},
@@ -36,4 +36,4 @@ namespace platform::gpio::cr {
 		arch::field<uint32_t, uint8_t>{26, 2},
 		arch::field<uint32_t, uint8_t>{30, 2},
 	};
-} // namespace platform::gpio::cr
+} // namespace gpio::cr

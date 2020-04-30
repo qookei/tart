@@ -18,7 +18,6 @@ static constexpr arch::mem_space gpio_space[5] = {
 
 void setup(pin p, mode d, config c, bool alt_fn) {
 	using namespace platform;
-	using namespace platform::gpio;
 
 	int pidx = p.p;
 	int bidx = static_cast<int>(p.b);
@@ -49,7 +48,6 @@ void setup(pin p, mode d, config c, bool alt_fn) {
 }
 
 void set(pin p, bool b) {
-	using namespace platform::gpio;
 	int pidx = p.p;
 	int bidx = static_cast<int>(p.b);
 	auto &space = gpio_space[bidx];
@@ -58,7 +56,6 @@ void set(pin p, bool b) {
 }
 
 bool get(pin p) {
-	using namespace platform::gpio;
 	int pidx = p.p;
 	int bidx = static_cast<int>(p.b);
 	auto &space = gpio_space[bidx];
@@ -66,4 +63,4 @@ bool get(pin p) {
 	return space.load(reg::input_data) & (1 << pidx);
 }
 
-} // namespace platform::gpio
+} // namespace gpio

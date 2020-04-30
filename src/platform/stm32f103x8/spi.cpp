@@ -82,4 +82,4 @@ void spi::deselect() {
 	// atomic clear;
 }
 
-} // namespace platform::spi
+} // namespace spi
