@@ -14,7 +14,7 @@ inc = include_directories('src')
 
 subdir('src/platform')
 
-cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti']
+cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])

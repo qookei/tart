@@ -82,4 +82,13 @@ void spi::deselect() {
 	// atomic clear;
 }
 
+spi *get_spi(int nth) {
+	static spi this_platform_spi_[2] = {{0}, {1}};
+
+	if (nth < 1 || nth > 2)
+		return nullptr;
+
+	return &this_platform_spi_[nth - 1];
+}
+
 } // namespace spi

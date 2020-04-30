@@ -13,12 +13,11 @@ void test();
 
 namespace platform {
 
-spi::spi spi1{0};
-
 void setup() {
 	rcc::clock_setup_ext_8mhz_72mhz();
 	usart::init(1, 115200, usart::parity::none, usart::stop_bits::one);
-	spi1.setup(64);
+	spi::get_spi(1)->setup(64);
+	spi::get_spi(2)->setup(64);
 }
 
 void nmi() {
@@ -76,37 +75,38 @@ void systick() {
 	while(1);
 }
 
-static uint8_t spi_transfer(spi::spi &s, uint8_t val) {
+static uint8_t spi_transfer(spi::spi_dev &s, uint8_t val) {
 	s.send(val);
 	while (!s.is_receive_not_empty());
 	return s.recv();
 }
 
-static void spi_vendor(uint8_t &manufacturer, uint8_t &device) {
-	gpio::set(gpio::pa3, false);
+static void spi_vendor(spi::spi_dev &dev, uint8_t &manufacturer, uint8_t &device) {
+	dev.select();
 
-	spi_transfer(spi1, 0x90);
-	spi_transfer(spi1, 0x00);
-	spi_transfer(spi1, 0x00);
-	spi_transfer(spi1, 0x00);
+	spi_transfer(dev, 0x90);
+	spi_transfer(dev, 0x00);
+	spi_transfer(dev, 0x00);
+	spi_transfer(dev, 0x00);
 
-	manufacturer = spi_transfer(spi1, 0);
-	device = spi_transfer(spi1, 0);
+	manufacturer = spi_transfer(dev, 0);
+	device = spi_transfer(dev, 0);
 
-	gpio::set(gpio::pa3, true);
+	dev.deselect();
 }
 
-static void spi_read(uint8_t *buffer, uint32_t address, size_t size) {
-	gpio::set(gpio::pa3, false);
-	spi_transfer(spi1, 0x03);
-	spi_transfer(spi1, (address >> 16) & 0xFF);
-	spi_transfer(spi1, (address >> 8)  & 0xFF);
-	spi_transfer(spi1, (address)       & 0xFF);
+static void spi_read(spi::spi_dev &dev, uint8_t *buffer, uint32_t address, size_t size) {
+	dev.select();
+
+	spi_transfer(dev, 0x03);
+	spi_transfer(dev, (address >> 16) & 0xFF);
+	spi_transfer(dev, (address >> 8)  & 0xFF);
+	spi_transfer(dev, (address)       & 0xFF);
 
 	for (size_t i = 0; i < size; i++)
-		*buffer++ = spi_transfer(spi1, 0);
+		*buffer++ = spi_transfer(dev, 0);
 
-	gpio::set(gpio::pa3, true);
+	dev.deselect();
 }
 
 constexpr size_t bytes_per_line = 16;
@@ -141,10 +141,7 @@ void buffer_pretty_print(const void *buf, size_t size) {
 }
 
 void run() {
-	gpio::setup(gpio::pa3, gpio::mode::output_50mhz, gpio::config::push_pull);
-	gpio::setup(gpio::pb12, gpio::mode::output_50mhz, gpio::config::push_pull);
-	gpio::set(gpio::pa3, true);
-	gpio::set(gpio::pb12, true);
+	spi::spi_dev dev{spi::get_spi(1), gpio::pa3};
 	lib::log("tart: hello!\r\n");
 	lib::log("tart: running frg::slab_pool test code!\r\n");
 	mem::test();
@@ -153,11 +150,11 @@ void run() {
 	lib::log("tart: trying out SPI1!\r\n");
 
 	uint8_t m, d;
-	spi_vendor(m, d);
+	spi_vendor(dev, m, d);
 	lib::log("tart: manufacturer = %02x, device = %02x\r\n", m, d);
 
 	lib::log("tart: reading 128 bytes:\r\n");
-	spi_read(buf, 0, 128);
+	spi_read(dev, buf, 0, 128);
 	buffer_pretty_print(buf, 128);
 
 	while(1);

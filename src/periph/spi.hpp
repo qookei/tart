@@ -58,4 +58,6 @@ namespace spi {
 		gpio::pin cs_pin_;
 		bool act_st_;
 	};
+
+	spi *get_spi(int nth);
 } // namespace spi
