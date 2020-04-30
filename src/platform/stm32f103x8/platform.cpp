@@ -2,7 +2,7 @@
 #include "rcc.hpp"
 #include "usart.hpp"
 #include <periph/gpio.hpp>
-#include "spi.hpp"
+#include <periph/spi.hpp>
 
 #include <lib/logger.hpp>
 #include <lib/string.hpp>
@@ -13,10 +13,12 @@ void test();
 
 namespace platform {
 
+spi::spi spi1{0};
+
 void setup() {
 	rcc::clock_setup_ext_8mhz_72mhz();
 	usart::init(1, 115200, usart::parity::none, usart::stop_bits::one);
-	spi::init(1, 8, 0, false, spi::size::eight);
+	spi1.setup(64);
 }
 
 void nmi() {
@@ -74,29 +76,35 @@ void systick() {
 	while(1);
 }
 
+static uint8_t spi_transfer(spi::spi &s, uint8_t val) {
+	s.send(val);
+	while (!s.is_receive_not_empty());
+	return s.recv();
+}
+
 static void spi_vendor(uint8_t &manufacturer, uint8_t &device) {
 	gpio::set(gpio::pa3, false);
 
-	spi::transfer(1, 0x90);
-	spi::transfer(1, 0x00);
-	spi::transfer(1, 0x00);
-	spi::transfer(1, 0x00);
+	spi_transfer(spi1, 0x90);
+	spi_transfer(spi1, 0x00);
+	spi_transfer(spi1, 0x00);
+	spi_transfer(spi1, 0x00);
 
-	manufacturer = spi::transfer(1, 0);
-	device = spi::transfer(1, 0);
+	manufacturer = spi_transfer(spi1, 0);
+	device = spi_transfer(spi1, 0);
 
 	gpio::set(gpio::pa3, true);
 }
 
 static void spi_read(uint8_t *buffer, uint32_t address, size_t size) {
 	gpio::set(gpio::pa3, false);
-	spi::transfer(1, 0x03);
-	spi::transfer(1, (address >> 16) & 0xFF);
-	spi::transfer(1, (address >> 8)  & 0xFF);
-	spi::transfer(1, (address)       & 0xFF);
+	spi_transfer(spi1, 0x03);
+	spi_transfer(spi1, (address >> 16) & 0xFF);
+	spi_transfer(spi1, (address >> 8)  & 0xFF);
+	spi_transfer(spi1, (address)       & 0xFF);
 
 	for (size_t i = 0; i < size; i++)
-		*buffer++ = spi::transfer(1, 0);
+		*buffer++ = spi_transfer(spi1, 0);
 
 	gpio::set(gpio::pa3, true);
 }
