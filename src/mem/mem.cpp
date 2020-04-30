@@ -1,15 +1,9 @@
 #include "mem.hpp"
-#include <lib/spinlock.hpp>
 #include <lib/logger.hpp>
 
 extern "C" int _bss_end;
 
 namespace mem {
-
-namespace {
-	bump_policy _this_policy;
-	frg::slab_pool<bump_policy, lib::spinlock> _this_allocator{_this_policy};
-}
 
 bump_policy::bump_policy()
 :_top((reinterpret_cast<uintptr_t>(&_bss_end) + pagesize - 1)
@@ -37,23 +31,40 @@ void bump_policy::unmap(uintptr_t, size_t) {
 	lib::log("bump_policy::unmap: stub unmap called\r\n");
 }
 
-void test() {
-	lib::log("mem::test: trying to allocate 32 bytes\r\n");
-	void *mem1 = _this_allocator.allocate(32);
-	lib::log("mem::test: allocated at %p\r\n", mem1);
-	lib::log("mem::test: trying to allocate 16 bytes\r\n");
-	void *mem2 = _this_allocator.allocate(16);
-	lib::log("mem::test: allocated at %p\r\n", mem2);
-	lib::log("mem::test: trying to allocate 512 bytes\r\n");
-	void *mem3 = _this_allocator.allocate(512);
-	lib::log("mem::test: allocated at %p\r\n", mem3);
-	_this_allocator.free(mem1);
-	lib::log("mem::test: freed 32 bytes\r\n");
-	_this_allocator.free(mem2);
-	lib::log("mem::test: freed 16 bytes\r\n");
-	_this_allocator.free(mem3);
-	lib::log("mem::test: freed 512 bytes\r\n");
-	lib::log("mem::test: we didn't crash!\r\n");
+// --------------------------------------------------------------------
+
+namespace {
+	bump_policy this_policy_;
+	frg::slab_pool<bump_policy, lib::spinlock> this_pool_{this_policy_};
+	frg::slab_allocator this_allocator_{&this_pool_};
+}
+
+frg::slab_allocator<bump_policy, lib::spinlock> &get_allocator() {
+	return this_allocator_;
 }
 
 } // namespace mem
+
+void* operator new(size_t size){
+	return mem::this_allocator_.allocate(size);
+}
+
+void* operator new[](size_t size){
+	return mem::this_allocator_.allocate(size);
+}
+
+void operator delete(void *p){
+	mem::this_allocator_.free(p);
+}
+
+void operator delete[](void *p){
+	mem::this_allocator_.free(p);
+}
+
+void operator delete(void *p, size_t size){
+	mem::this_allocator_.deallocate(p, size);
+}
+
+void operator delete[](void *p, size_t size){
+	mem::this_allocator_.deallocate(p, size);
+}

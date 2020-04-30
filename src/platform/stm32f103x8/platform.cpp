@@ -9,10 +9,6 @@
 #include <lib/logger.hpp>
 #include <lib/string.hpp>
 
-namespace mem {
-void test();
-}
-
 namespace platform {
 
 void setup() {
@@ -79,8 +75,6 @@ void systick() {
 
 void run() {
 	lib::log("tart: hello!\r\n");
-	lib::log("tart: running frg::slab_pool test code!\r\n");
-	mem::test();
 
 	uint8_t buf[128];
 	lib::log("tart: trying out SPI1!\r\n");
