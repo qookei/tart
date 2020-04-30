@@ -23,7 +23,7 @@ void setup() {
 }
 
 void nmi() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected nmi\r\n");
 	while(1);
 }
 
@@ -48,64 +48,33 @@ void hard_fault() {
 }
 
 void mm_fault() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected mm fault\r\n");
 	while(1);
 }
 
 void bus_fault() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected bus fault\r\n");
 	while(1);
 }
 
 void usage_fault() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected usage fault\r\n");
 	while(1);
 }
 
 void sv_call() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected sv call\r\n");
 	while(1);
 }
 
 void pend_sv_call() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected pending sv call\r\n");
 	while(1);
 }
 
 void systick() {
-	usart::send(1, "unexpected exception\r\n", 22);
+	lib::log("unexpected systick\r\n");
 	while(1);
-}
-
-constexpr size_t bytes_per_line = 16;
-
-#define min(x, y) ((x) > (y) ? (y) : (x))
-
-void buffer_pretty_print(const void *buf, size_t size) {
-	uintptr_t addr = reinterpret_cast<uintptr_t>(buf);
-
-	for (size_t i = 0; i < (size + bytes_per_line - 1) / bytes_per_line; i++) {
-		uint8_t buf[bytes_per_line];
-		auto off = i * bytes_per_line;
-		size_t n = min(bytes_per_line, size - off);
-		memcpy(
-			buf,
-			reinterpret_cast<const void *>(addr + off),
-			n
-		);
-
-		lib::log(" %08lx: ", addr + off);
-
-		for (size_t j = 0; j < n; j++)
-			lib::log("%02x ", buf[j]);
-		for (size_t j = 0; j < bytes_per_line - n; j++)
-			lib::log("   ");
-
-		for (auto &c : buf)
-			c = (c >= ' ' && c <= '~') ? c : '.';
-
-		lib::log("| %.*s\r\n", static_cast<int>(n), buf);
-	}
 }
 
 void run() {
@@ -125,7 +94,7 @@ void run() {
 
 	lib::log("tart: reading 128 bytes:\r\n");
 	flash.read(buf, 0, 128);
-	buffer_pretty_print(buf, 128);
+	log::dump_buffer(buf, 128);
 
 	while(1);
 }
