@@ -7,6 +7,8 @@
 
 #include <frg/utility.hpp>
 
+#include <net/process.hpp>
+
 namespace drivers {
 
 namespace {
@@ -21,15 +23,14 @@ void enc28j60_nic::setup(const net::mac &mac) {
 	lib::log("enc28j60_nic::setup: setting up\r\n");
 
 	// program receive buffer
-	// recv buffer at 0x1001 - 0x1FFF
-	// using odd addresses due to errata
+	// recv buffer at 0x1000 - 0x1FFF
 	// program start pointer
 	write_reg(reg::erxstl, rx_start & 0xFF);
 	write_reg(reg::erxsth, (rx_start >> 8) & 0xFF);
 	// program end pointer
 	write_reg(reg::erxndl, rx_end & 0xFF);
 	write_reg(reg::erxndh, (rx_end >> 8) & 0xFF);
-
+	// program receive read pointer
 	write_reg(reg::erxrdptl, rx_end & 0xFF);
 	write_reg(reg::erxrdpth, (rx_end >> 8) & 0xFF);
 
@@ -93,8 +94,10 @@ void enc28j60_nic::run() {
 			write_reg(reg::erxrdpth, ((next_ptr - 1) >> 8) & 0xFF);
 		}
 
-		lib::log("enc28j60_nic::run: length of packet is %u bytes, next packet pointer is %04x, contents are:\r\n", len, next_ptr);
-		lib::dump_buffer(buf, frg::min<uint16_t>(len, 2048));
+		net::process_packet(buf, frg::min<uint16_t>(len, 2048));
+
+		//lib::log("enc28j60_nic::run: length of packet is %u bytes, contents are:\r\n", len);
+		//lib::dump_buffer(buf, frg::min<uint16_t>(len, 2048));
 	}
 }
 

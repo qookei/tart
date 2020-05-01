@@ -33,7 +33,8 @@ sources = [
 		'src/lib/logger.cpp',
 		'src/mem/mem.cpp',
 		'src/drivers/w25x.cpp',
-		'src/drivers/enc28j60.cpp'
+		'src/drivers/enc28j60.cpp',
+		'src/net/process.cpp'
 	)
 ]
 

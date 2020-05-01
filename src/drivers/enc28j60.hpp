@@ -1,16 +1,7 @@
 #pragma once
 
 #include <periph/spi.hpp>
-
-// TODO: move to it's own header
-namespace net {
-	struct mac {
-		uint8_t v[6];
-		uint8_t operator[](size_t i) const {
-			return v[i];
-		}
-	};
-} // namespace net
+#include <net/mac.hpp>
 
 namespace drivers {
 	struct enc28j60_nic {
