@@ -2,7 +2,7 @@
 
 #include <new>
 #include <frg/slab.hpp>
-#include <lib/spinlock.hpp>
+#include <lib/utils.hpp>
 
 namespace mem {
 
@@ -20,6 +20,8 @@ private:
 	uintptr_t _top;
 };
 
-frg::slab_allocator<bump_policy, lib::spinlock> &get_allocator();
+using allocator = frg::slab_allocator<bump_policy, lib::noop_lock>;
+
+allocator &get_allocator();
 
 } // namespace mem

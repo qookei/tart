@@ -35,11 +35,11 @@ void bump_policy::unmap(uintptr_t, size_t) {
 
 namespace {
 	bump_policy this_policy_;
-	frg::slab_pool<bump_policy, lib::spinlock> this_pool_{this_policy_};
+	frg::slab_pool<bump_policy, lib::noop_lock> this_pool_{this_policy_};
 	frg::slab_allocator this_allocator_{&this_pool_};
 }
 
-frg::slab_allocator<bump_policy, lib::spinlock> &get_allocator() {
+frg::slab_allocator<bump_policy, lib::noop_lock> &get_allocator() {
 	return this_allocator_;
 }
 

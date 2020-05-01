@@ -14,7 +14,8 @@ inc = include_directories('src')
 
 subdir('src/platform')
 
-cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics', '-DCXXSHIM_INTEGRATE_GCC']
+cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
+		'-DCXXSHIM_INTEGRATE_GCC', '-DLIBASYNC_CUSTOM_PLATFORM']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
@@ -25,6 +26,7 @@ frigg_dep = frigg.get_variable('frigg_dep')
 cxxshim_dep = cxxshim.get_variable('cxxshim_dep')
 cxxshim_clang_coro_dep = cxxshim.get_variable('clang_coroutine_dep')
 libarch_dep = libarch.get_variable('libarch_dep')
+libasync_inc = include_directories('subprojects/libasync/include')
 
 sources = [
 	platform_sources,

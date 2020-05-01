@@ -95,9 +95,6 @@ void enc28j60_nic::run() {
 		}
 
 		net::process_packet(buf, frg::min<uint16_t>(len, 2048));
-
-		//lib::log("enc28j60_nic::run: length of packet is %u bytes, contents are:\r\n", len);
-		//lib::dump_buffer(buf, frg::min<uint16_t>(len, 2048));
 	}
 }
 
