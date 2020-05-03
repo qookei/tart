@@ -1,11 +1,7 @@
 #include "../platform.hpp"
 #include "rcc.hpp"
 #include "usart.hpp"
-#include <periph/gpio.hpp>
 #include <periph/spi.hpp>
-#include <periph/transmit.hpp>
-#include <drivers/w25x.hpp>
-#include <drivers/enc28j60.hpp>
 
 #include <lib/logger.hpp>
 #include <lib/string.hpp>
@@ -71,31 +67,6 @@ void pend_sv_call() {
 
 void systick() {
 	lib::log("unexpected systick\r\n");
-	while(1);
-}
-
-void run() {
-	lib::log("tart: hello!\r\n");
-
-//	uint8_t buf[128];
-
-//	spi::spi_dev dev1{spi::get_spi(1), gpio::pa3};
-	spi::spi_dev dev2{spi::get_spi(2), gpio::pa2};
-//	drivers::w25x_flash flash{&dev1};
-	drivers::enc28j60_nic nic{&dev2};
-
-//	uint8_t vendor, device;
-//	flash.vendor_info(vendor, device);
-//	lib::log("tart: vendor = %02x, device = %02x\r\n", vendor, device);
-
-//	lib::log("tart: reading 128 bytes:\r\n");
-//	flash.read(buf, 0, 128);
-//	lib::dump_buffer(buf, 128);
-
-	// 57:95:77:9C:48:BA
-	nic.setup({0x57, 0x95, 0x77, 0x9C, 0x48, 0xBA});
-	nic.run();
-
 	while(1);
 }
 

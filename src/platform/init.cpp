@@ -47,6 +47,10 @@ extern "C" void reset_handler() {
 	platform::entry();
 }
 
+namespace service {
+	void run();
+} // namespace service
+
 void platform::entry() {
 	memcpy(&_data_start, &_data_loadaddr, static_cast<size_t>(&_data_end - &_data_start));
 	memset(&_bss_start, 0, static_cast<size_t>(&_bss_end - &_bss_start));
@@ -56,7 +60,7 @@ void platform::entry() {
 	}
 
 	platform::setup();
-	platform::run();
+	service::run();
 
 	while(true);
 }

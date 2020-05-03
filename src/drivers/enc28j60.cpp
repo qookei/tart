@@ -59,7 +59,7 @@ void enc28j60_nic::setup(const net::mac &mac) {
 	write_phy(phy_reg::phcon1, phcon1::pdpxmd);
 }
 
-void enc28j60_nic::run() {
+async::detached enc28j60_nic::run() {
 	uint8_t rev = read_reg(reg::erevid);
 	lib::log("enc28j60_nic::run: sillicon revision: %02x\r\n", rev);
 
@@ -95,6 +95,8 @@ void enc28j60_nic::run() {
 		}
 
 		net::process_packet(buf, frg::min<uint16_t>(len, 2048));
+
+		co_await async::yield_to_current_queue();
 	}
 }
 

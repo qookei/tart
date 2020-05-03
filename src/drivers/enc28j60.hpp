@@ -2,6 +2,7 @@
 
 #include <periph/spi.hpp>
 #include <net/mac.hpp>
+#include <async/basic.hpp>
 
 namespace drivers {
 	struct enc28j60_nic {
@@ -9,7 +10,7 @@ namespace drivers {
 		:dev_{dev} {}
 
 		void setup(const net::mac &mac);
-		void run();
+		async::detached run();
 	private:
 		void set_bank(uint8_t bank);
 		uint8_t read_reg(uint8_t reg);

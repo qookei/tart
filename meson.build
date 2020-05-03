@@ -36,12 +36,13 @@ sources = [
 		'src/mem/mem.cpp',
 		'src/drivers/w25x.cpp',
 		'src/drivers/enc28j60.cpp',
-		'src/net/process.cpp'
+		'src/net/process.cpp',
+		'src/service.cpp'
 	)
 ]
 
 elf = executable('tart.elf', sources,
-		include_directories: inc,
+		include_directories: [inc, libasync_inc],
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_clang_coro_dep, libarch_dep],
 		cpp_args: [cpp_args],
 		link_args: [link_args, '-lgcc'],

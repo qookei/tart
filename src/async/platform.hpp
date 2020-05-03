@@ -1,6 +1,8 @@
 #include <lib/utils.hpp>
 #include <lib/logger.hpp>
 
+#define LIBASYNC_THREAD_LOCAL
+
 namespace async::platform {
 	using mutex = lib::noop_lock;
 
