@@ -1,4 +1,5 @@
 #pragma once
+#include <lib/logger.hpp>
 
 namespace lib {
 
@@ -9,3 +10,21 @@ struct noop_lock {
 };
 
 } // namespace lib
+
+#define _STR(x) #x
+#define STR(x) _STR(x)
+
+#define assert(expr) \
+	do { \
+		if(!(expr)) \
+			assert_failure__(STR(expr), __FILE__, __LINE__, __func__);\
+	} while(0);
+
+// public ns
+[[noreturn]] static inline void assert_failure__(
+		const char *expr, const char *file, int line, const char *func) {
+	// TODO: call panic
+	lib::log("tart: %s:%d: %s: assertion '%s' failed\r\n", file, line, func, expr);
+	while(1);
+	__builtin_unreachable();
+}
