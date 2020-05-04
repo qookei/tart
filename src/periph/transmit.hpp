@@ -2,7 +2,6 @@
 
 #include <frg/array.hpp>
 #include <stdint.h>
-#include <async/result.hpp>
 
 namespace transmit {
 
@@ -63,13 +62,13 @@ auto xfer_buffers(T (&out)[N], T (&in)[N]) {
 }
 
 template <typename Transmitter, typename ...Args>
-async::result<void> do_transmission(Transmitter *transmitter, Args &&...args) {
+void do_transmission(Transmitter *transmitter, Args &&...args) {
 	auto items = frg::array_concat<operation>(std::forward<Args>(args)...);
 
 	size_t out_item = 0, in_item = 0;
 	size_t out_off = 0, in_off = 0;
 
-	co_await transmitter->select();
+	transmitter->select();
 
 	while (out_item < items.size() || in_item < items.size()) {
 		while (out_item < items.size()
@@ -116,8 +115,8 @@ async::result<void> do_transmission(Transmitter *transmitter, Args &&...args) {
 }
 
 template <typename Transmitter, typename ...Args>
-async::result<void> do_transmission(Transmitter &transmitter, Args &&...args) {
-	co_await do_transmission(&transmitter, std::forward<Args>(args)...);
+void do_transmission(Transmitter &transmitter, Args &&...args) {
+	do_transmission(&transmitter, std::forward<Args>(args)...);
 }
 
 } // namespace transmit

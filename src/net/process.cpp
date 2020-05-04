@@ -31,6 +31,18 @@ void process_arp(ethernet_frame &frame) {
 			arp.sender_hw_address[3],
 			arp.sender_hw_address[4],
 			arp.sender_hw_address[5]);
+	} else if (arp.operation == 2) {
+		lib::log("net::process_arp: %u.%u.%u.%u is at %02x:%02x:%02x:%02x:%02x:%02x\r\n",
+			arp.sender_proto_address[0],
+			arp.sender_proto_address[1],
+			arp.sender_proto_address[2],
+			arp.sender_proto_address[3],
+			arp.sender_hw_address[0],
+			arp.sender_hw_address[1],
+			arp.sender_hw_address[2],
+			arp.sender_hw_address[3],
+			arp.sender_hw_address[4],
+			arp.sender_hw_address[5]);
 	}
 }
 
@@ -90,7 +102,6 @@ async::detached processor::process_packets() {
 }
 
 void processor::push_packet(mem::buffer &&b) {
-	lib::log("net::push_packet called\r\n");
 	raw_packet_queue_.emplace(std::move(b));
 }
 

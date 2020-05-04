@@ -52,6 +52,7 @@ namespace reg {
 	constexpr uint8_t macon3 = reg_no(2, 0x2);
 	constexpr uint8_t macon4 = reg_no(2, 0x3);
 	constexpr uint8_t mabbipg = reg_no(2, 0x4);
+	constexpr uint8_t mapipgl = reg_no(2, 0x6);
 	constexpr uint8_t micmd = reg_no(2, 0x12);
 	constexpr uint8_t miregadr = reg_no(2, 0x14);
 	constexpr uint8_t miwrl = reg_no(2, 0x16);
@@ -88,10 +89,14 @@ namespace phcon1 {
 
 namespace estat {
 	constexpr uint8_t clkrdy = (1 << 0);
+	constexpr uint8_t txabrt = (1 << 1);
+	constexpr uint8_t latecol = (1 << 4);
 } // namespace estat
 
 namespace econ1 {
 	constexpr uint8_t rxen = (1 << 2);
+	constexpr uint8_t txrts = (1 << 3);
+	constexpr uint8_t txrst = (1 << 7);
 } // namespace econ1
 
 namespace econ2 {
@@ -101,6 +106,8 @@ namespace econ2 {
 
 namespace eir {
 	constexpr uint8_t pktif = (1 << 6);
+	constexpr uint8_t txif = (1 << 3);
+	constexpr uint8_t txerif = (1 << 1);
 } // namespace eir
 
 namespace macon1 {

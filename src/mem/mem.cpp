@@ -17,7 +17,7 @@ uintptr_t bump_policy::map(size_t s) {
 
 	_top += s;
 
-	if (p > sp) {
+	if (p + s > sp) {
 		lib::panic("bump_policy::map: agh, the heap is trampling over our stack, bailing out\r\n");
 	}
 
@@ -43,11 +43,11 @@ frg::slab_allocator<bump_policy, lib::noop_lock> &get_allocator() {
 
 } // namespace mem
 
-void* operator new(size_t size){
+void *operator new(size_t size){
 	return mem::this_allocator_.allocate(size);
 }
 
-void* operator new[](size_t size){
+void *operator new[](size_t size){
 	return mem::this_allocator_.allocate(size);
 }
 

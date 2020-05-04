@@ -72,14 +72,6 @@ uint8_t spi::recv() {
 	return spi.load(reg::data);
 }
 
-async::result<void> spi::select() {
-	co_await mutex_.async_lock();
-}
-
-void spi::deselect() {
-	mutex_.unlock();
-}
-
 spi *get_spi(int nth) {
 	static spi this_platform_spi_[2] = {{0}, {1}};
 

@@ -19,8 +19,9 @@ void run() {
 	drivers::enc28j60_nic nic{&dev2};
 	net::processor pr;
 
-	// 57:95:77:9C:48:BA
-	nic.run({0x57, 0x95, 0x77, 0x9C, 0x48, 0xBA}, pr);
+	// 56:95:77:9C:48:BA
+	nic.setup({0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA});
+	nic.run(pr);
 	pr.process_packets();
 
 	lib::log("tart: entering async run_queue\r\n");
