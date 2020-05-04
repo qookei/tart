@@ -96,6 +96,7 @@ namespace econ1 {
 
 namespace econ2 {
 	constexpr uint8_t autoinc = (1 << 7);
+	constexpr uint8_t pktdec = (1 << 6);
 } // namespace econ2
 
 namespace eir {

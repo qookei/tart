@@ -72,14 +72,12 @@ uint8_t spi::recv() {
 	return spi.load(reg::data);
 }
 
-void spi::select() {
-	// while (!atomic test and set)
-	//	co_await was_deselected.async_wait();
+async::result<void> spi::select() {
+	co_await mutex_.async_lock();
 }
 
 void spi::deselect() {
-	// was_deselected.ring();
-	// atomic clear;
+	mutex_.unlock();
 }
 
 spi *get_spi(int nth) {

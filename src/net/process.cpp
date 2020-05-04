@@ -4,6 +4,10 @@
 #include <net/ether.hpp>
 #include <net/arp.hpp>
 
+#include <mem/buffer.hpp>
+
+#include <async/queue.hpp>
+
 namespace net {
 
 namespace {
@@ -57,28 +61,37 @@ void process_ipv4(ethernet_frame &frame) {
 
 } // namespace anonymous
 
-void process_packet(void *data, size_t size) {
-	auto ether = ethernet_frame::from_bytes(data, size);
-	if (ether.type <= 1500) {
-		lib::log("net::process_packet: no ethertype value, dropping\r\n");
-		return;
-	}
+async::detached processor::process_packets() {
+	while(true) {
+		auto buffer = std::move(*(co_await raw_packet_queue_.async_get()));
 
-	lib::log("net::process_packet: got ethernet frame, from %02x:%02x:%02x:%02x:%02x:%02x, to %02x:%02x:%02x:%02x:%02x:%02x, type %04x\r\n",
-			ether.source[0], ether.source[1], ether.source[2],
-			ether.source[3], ether.source[4], ether.source[5],
-			ether.dest[0], ether.dest[1], ether.dest[2],
-			ether.dest[3], ether.dest[4], ether.dest[5],
-			ether.type);
+		auto ether = ethernet_frame::from_bytes(buffer.data(), buffer.size());
+		if (ether.type <= 1500) {
+			lib::log("net::process_packet: no ethertype value, dropping\r\n");
+			continue;
+		}
 
-	switch (ether.type) {
-		case ethernet_frame::arp_type:
-			process_arp(ether);
-			break;
-		case ethernet_frame::ipv4_type:
-			process_ipv4(ether);
-			break;
+		lib::log("net::process_packet: got ethernet frame, from %02x:%02x:%02x:%02x:%02x:%02x, to %02x:%02x:%02x:%02x:%02x:%02x, type %04x\r\n",
+				ether.source[0], ether.source[1], ether.source[2],
+				ether.source[3], ether.source[4], ether.source[5],
+				ether.dest[0], ether.dest[1], ether.dest[2],
+				ether.dest[3], ether.dest[4], ether.dest[5],
+				ether.type);
+
+		switch (ether.type) {
+			case ethernet_frame::arp_type:
+				process_arp(ether);
+				break;
+			case ethernet_frame::ipv4_type:
+				process_ipv4(ether);
+				break;
+		}
 	}
+}
+
+void processor::push_packet(mem::buffer &&b) {
+	lib::log("net::push_packet called\r\n");
+	raw_packet_queue_.emplace(std::move(b));
 }
 
 } // namespace net

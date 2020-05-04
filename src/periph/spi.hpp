@@ -1,10 +1,12 @@
 #pragma once
 
 #include <periph/gpio.hpp>
+#include <async/result.hpp>
+#include <async/mutex.hpp>
 
 namespace spi {
 	struct spi {
-		spi(int nth) :nth_(nth) {}
+		spi(int nth) :nth_{nth}, mutex_{} {}
 		void setup(int clock_div, int mode = 0, bool msb = true);
 
 		bool is_transmit_empty();
@@ -13,11 +15,12 @@ namespace spi {
 		void send(uint8_t value);
 		uint8_t recv();
 
-		void select();
+		async::result<void> select();
 		void deselect();
 
 	private:
 		int nth_;
+		async::mutex mutex_;
 	};
 
 	// Allows for attaching a chip select pin to the device
@@ -44,8 +47,8 @@ namespace spi {
 			return iface_->recv();
 		}
 
-		void select() {
-			iface_->select();
+		async::result<void> select() {
+			co_await iface_->select();
 			gpio::set(cs_pin_, act_st_);
 		}
 

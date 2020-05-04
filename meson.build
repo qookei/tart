@@ -37,7 +37,8 @@ sources = [
 		'src/drivers/w25x.cpp',
 		'src/drivers/enc28j60.cpp',
 		'src/net/process.cpp',
-		'src/service.cpp'
+		'src/service.cpp',
+		'src/cxx-support.cpp'
 	)
 ]
 
