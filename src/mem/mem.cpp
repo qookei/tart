@@ -18,9 +18,7 @@ uintptr_t bump_policy::map(size_t s) {
 	_top += s;
 
 	if (p > sp) {
-		// TODO: replace with actual panic
-		lib::log("bump_policy::map: agh, the heap is trampling over our stack, bailing out\r\n");
-		while(1);
+		lib::panic("bump_policy::map: agh, the heap is trampling over our stack, bailing out\r\n");
 	}
 
 	memset(reinterpret_cast<void *>(p), 0, s);

@@ -16,8 +16,7 @@ void setup() {
 }
 
 void nmi() {
-	lib::log("unexpected nmi\r\n");
-	while(1);
+	lib::panic("unexpected nmi\r\n");
 }
 
 [[gnu::used]]
@@ -32,7 +31,7 @@ extern "C" void actual_hard_fault(uintptr_t *stack) {
 	lib::log("pc  = 0x%08x\r\n", stack[6]);
 	lib::log("psr = 0x%08x\r\n", stack[7]);
 
-	while(1);
+	lib::panic("unexpected hard fault\r\n");
 }
 
 [[gnu::naked]]
@@ -41,33 +40,27 @@ void hard_fault() {
 }
 
 void mm_fault() {
-	lib::log("unexpected mm fault\r\n");
-	while(1);
+	lib::panic("unexpected mm fault\r\n");
 }
 
 void bus_fault() {
-	lib::log("unexpected bus fault\r\n");
-	while(1);
+	lib::panic("unexpected bus fault\r\n");
 }
 
 void usage_fault() {
-	lib::log("unexpected usage fault\r\n");
-	while(1);
+	lib::panic("unexpected usage fault\r\n");
 }
 
 void sv_call() {
-	lib::log("unexpected sv call\r\n");
-	while(1);
+	lib::panic("unexpected sv call\r\n");
 }
 
 void pend_sv_call() {
-	lib::log("unexpected pending sv call\r\n");
-	while(1);
+	lib::panic("unexpected pending sv call\r\n");
 }
 
 void systick() {
-	lib::log("unexpected systick\r\n");
-	while(1);
+	lib::panic("unexpected systick\r\n");
 }
 
 } // namespace platform

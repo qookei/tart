@@ -23,8 +23,5 @@ struct noop_lock {
 // public ns
 [[noreturn]] static inline void assert_failure__(
 		const char *expr, const char *file, int line, const char *func) {
-	// TODO: call panic
-	lib::log("tart: %s:%d: %s: assertion '%s' failed\r\n", file, line, func, expr);
-	while(1);
-	__builtin_unreachable();
+	lib::panic("tart: %s:%d: %s: assertion '%s' failed\r\n", file, line, func, expr);
 }

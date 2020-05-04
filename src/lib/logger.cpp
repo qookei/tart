@@ -7,12 +7,16 @@
 // TODO: make a generic usart iface
 #include <platform/stm32f103x8/usart.hpp>
 
+#include <platform/stack.hpp>
+
 namespace lib {
 
-void log(const char *fmt, ...) {
+namespace {
+
+void vlog(const char *fmt, va_list va) {
 	frg::va_struct vs;
 
-	va_start(vs.args, fmt);
+	va_copy(vs.args, va);
 
 	struct {
 		frg::va_struct *_vsp;
@@ -50,12 +54,37 @@ void log(const char *fmt, ...) {
 	} usart_formatter{&vs};
 
 	frg::printf_format(usart_formatter, fmt, &vs);
-	va_end(vs.args);
+}
+
+} // namespace anonymous
+
+void log(const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	vlog(fmt, va);
+	va_end(va);
+}
+
+[[noreturn]] void panic(const char *fmt, ...) {
+	log("PANIC!\r\n");
+
+	va_list va;
+	va_start(va, fmt);
+	vlog(fmt, va);
+	va_end(va);
+
+	size_t n = 0;
+	platform::walk_stack([&n](uintptr_t ptr) {
+		lib::log("  #%lu -> %08lx\r\n", n, ptr);
+		n++;
+	});
+
+	while(1);
+	__builtin_unreachable();
 }
 
 extern "C" void frg_panic(const char *msg) {
-	log("frg panic: %s\r\n", msg);
-	while(1);
+	panic("frg panic: %s\r\n", msg);
 }
 
 extern "C" void frg_log(const char *msg) {
