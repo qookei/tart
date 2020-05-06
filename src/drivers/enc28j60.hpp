@@ -4,14 +4,17 @@
 #include <net/process.hpp>
 #include <net/mac.hpp>
 #include <async/result.hpp>
+#include <async/doorbell.hpp>
+#include <async/service.hpp>
 
 namespace drivers {
-	struct enc28j60_nic {
+	struct enc28j60_nic : public service::pollable {
 		enc28j60_nic(spi::spi_dev *dev)
 		:dev_{dev}, send_queue_{mem::get_allocator()} {}
 
 		void setup(const net::mac &mac);
 		async::detached run(net::processor &pr);
+		bool do_poll() override;
 	private:
 		async::detached run_send();
 
@@ -33,6 +36,14 @@ namespace drivers {
 
 		spi::spi_dev *dev_;
 		async::queue<mem::buffer, mem::allocator> send_queue_;
+
+		async::doorbell transmit_irq_;
+		std::atomic_bool transmit_error_;
+
+		async::doorbell receive_irq_;
+		std::atomic_bool receive_error_;
+
+		async::doorbell link_irq_;
 	};
 
 } // namespace drivers

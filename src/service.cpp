@@ -3,6 +3,7 @@
 #include <drivers/enc28j60.hpp>
 #include <lib/logger.hpp>
 #include <async/basic.hpp>
+#include <async/service.hpp>
 #include <net/process.hpp>
 
 namespace service {
@@ -10,8 +11,7 @@ namespace service {
 void run() {
 	async::run_queue rq;
 	async::queue_scope qs{&rq};
-
-	struct dummy_io_service { void wait() { } } ios;
+	io_service ios{&rq};
 
 	lib::log("tart: hello!\r\n");
 
@@ -23,6 +23,8 @@ void run() {
 	nic.setup({0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA});
 	nic.run(pr);
 	pr.process_packets();
+
+	ios.attach_waiter(nic);
 
 	lib::log("tart: entering async run_queue\r\n");
 	async::run_forever(rq.run_token(), ios);

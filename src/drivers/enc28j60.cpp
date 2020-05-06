@@ -20,7 +20,12 @@ namespace {
 void enc28j60_nic::setup(const net::mac &mac) {
 	lib::log("enc28j60_nic::setup: resetting\r\n");
 	reset();
-	for (int i = 0; i < 8000000; i++) asm volatile ("nop");
+	for (int i = 0; i < 20000000; i++) asm volatile ("nop");
+
+	lib::log("enc28j60_nic::setup: waiting for ost\r\n");
+	// wait for ost
+	while(!(read_reg(reg::estat) & estat::clkrdy));
+
 	lib::log("enc28j60_nic::setup: setting up\r\n");
 
 	// program receive buffer
@@ -34,9 +39,6 @@ void enc28j60_nic::setup(const net::mac &mac) {
 	// program receive read pointer
 	write_reg(reg::erxrdptl, rx_end & 0xFF);
 	write_reg(reg::erxrdpth, (rx_end >> 8) & 0xFF);
-
-	// wait for ost
-	while(!(read_reg(reg::estat) & estat::clkrdy));
 
 	// setup mac
 	// enable receive and ieee flow control
@@ -64,7 +66,6 @@ void enc28j60_nic::setup(const net::mac &mac) {
 }
 
 async::detached enc28j60_nic::run(net::processor &pr) {
-
 	uint8_t rev = read_reg(reg::erevid);
 	lib::log("enc28j60_nic::run: sillicon revision: %02x\r\n", rev);
 
@@ -72,61 +73,62 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 
 	uint16_t cur_ptr = rx_start;
 
-	uint8_t test_data[] = {
-		0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-		0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
-		0x08, 0x06,
-		0x00, 0x01,
-		0x08, 0x00,
-		0x06,
-		0x04,
-		0x00, 0x01,
-		0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
-		0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0xC0, 0xA8, 0x01, 0x66
-	};
+	//uint8_t test_data[] = {
+	//	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+	//	0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
+	//	0x08, 0x06,
+	//	0x00, 0x01,
+	//	0x08, 0x00,
+	//	0x06,
+	//	0x04,
+	//	0x00, 0x01,
+	//	0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
+	//	0x00, 0x00, 0x00, 0x00,
+	//	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	//	0xC0, 0xA8, 0x01, 0x67
+	//};
 
-	mem::buffer pkt{sizeof(test_data)};
-	memcpy(pkt.data(), test_data, pkt.size());
+	//mem::buffer pkt{sizeof(test_data)};
+	//memcpy(pkt.data(), test_data, pkt.size());
 
-	lib::log("enc28j60_nic: submitting test packet send (arp query for 192.168.1.102)\r\n");
-	send_queue_.emplace(std::move(pkt));
+	//lib::log("enc28j60_nic: submitting test packet send (arp query for 192.168.1.102)\r\n");
+	//send_queue_.emplace(std::move(pkt));
 
 	run_send();
 
 	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
 	while(1) {
-		while (!(read_reg(reg::epktcnt)))
-			co_await async::yield_to_current_queue();
+		co_await receive_irq_.async_wait();
+		bool was_err = receive_error_.exchange(false);
+		assert(!was_err);
 
-		lib::log("enc28j60_nic::run: received %u packet(s)\r\n", read_reg(reg::epktcnt));
+		lib::log("enc28j60_nic::run: got 1 packet\r\n");
 
-		while (read_reg(reg::epktcnt)) {
-			uint16_t next_ptr;
-			uint8_t status[4];
-			read_buffer(&next_ptr, cur_ptr, 2, true);
-			read_buffer(status, 0, 4);
-			uint16_t len = frg::min(
-				uint16_t(status[0]) | (uint16_t(status[1]) << 8),
-				1522);
+		uint16_t next_ptr;
+		uint16_t len;
+		uint8_t status[4];
+		read_buffer(&next_ptr, cur_ptr, 2, true);
+		read_buffer(status, 0, 4);
+		memcpy(&len, status, 2);
+		assert(len < 1522);
 
-			cur_ptr = next_ptr;
+		lib::log("len = %u\r\n", len);
 
-			mem::buffer buf{len};
-			read_buffer(buf.data(), 0, len);
+		cur_ptr = next_ptr;
 
-			if (next_ptr == rx_start) {
-				write_reg(reg::erxrdptl, rx_end & 0xFF);
-				write_reg(reg::erxrdpth, (rx_end >> 8) & 0xFF);
-			} else {
-				write_reg(reg::erxrdptl, (next_ptr - 1) & 0xFF);
-				write_reg(reg::erxrdpth, ((next_ptr - 1) >> 8) & 0xFF);
-			}
+		mem::buffer buf{len};
+		read_buffer(buf.data(), 0, len);
 
-			pr.push_packet(std::move(buf));
-			reg_bit_set(reg::econ2, econ2::pktdec);
+		if (next_ptr == rx_start) {
+			write_reg(reg::erxrdptl, rx_end & 0xFF);
+			write_reg(reg::erxrdpth, (rx_end >> 8) & 0xFF);
+		} else {
+			write_reg(reg::erxrdptl, (next_ptr - 1) & 0xFF);
+			write_reg(reg::erxrdpth, ((next_ptr - 1) >> 8) & 0xFF);
 		}
+
+		pr.push_packet(std::move(buf));
+		reg_bit_set(reg::econ2, econ2::pktdec);
 	}
 }
 
@@ -157,20 +159,11 @@ async::detached enc28j60_nic::run_send() {
 		// trigger send
 		reg_bit_set(reg::econ1, econ1::txrts);
 
-		constexpr int timeout = 450000;
-		int it = 0;
-		while (!(read_reg(reg::eir) & (eir::txif | eir::txerif))
-				&& it++ < timeout)
-			co_await async::yield_to_current_queue();
+		// wait for completion
+		co_await transmit_irq_.async_wait();
+		bool was_err = transmit_error_.exchange(false);
 
 		reg_bit_reset(reg::econ1, econ1::txrts);
-
-		bool tx_done = read_reg(reg::eir) & (eir::txif | eir::txerif);
-
-		if (it >= timeout && tx_done) {
-			lib::log("enc28j60_nic::run_send: transmission timed out\r\n");
-			continue;
-		}
 
 		auto r = read_reg(reg::estat);
 		if (r & estat::txabrt) {
@@ -181,6 +174,34 @@ async::detached enc28j60_nic::run_send() {
 			lib::log("enc28j60_nic::run_send: packet transmitted successfully\r\n");
 		}
 	}
+}
+
+bool enc28j60_nic::do_poll() {
+	uint8_t eir = read_reg(reg::eir);
+	uint8_t epktcnt = read_reg(reg::epktcnt);
+
+	if (epktcnt || (eir & eir::pktif) || (eir & eir::rxerif)) {
+		receive_irq_.ring();
+		receive_error_ = eir & eir::rxerif;
+
+		if (eir & eir::rxerif)
+			reg_bit_reset(reg::eir, eir::rxerif);
+	}
+
+	if ((eir & eir::txif) || (eir & eir::txerif)) {
+		transmit_irq_.ring();
+		transmit_error_ = eir & eir::txerif;
+
+		if (eir & eir::txif)
+			reg_bit_reset(reg::eir, eir::txif);
+		if (eir & eir::txerif)
+			reg_bit_reset(reg::eir, eir::txerif);
+	}
+
+	if (eir & eir::linkif)
+		link_irq_.ring();
+
+	return epktcnt || eir;
 }
 
 void enc28j60_nic::set_bank(uint8_t bank) {

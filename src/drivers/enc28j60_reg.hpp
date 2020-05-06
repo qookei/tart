@@ -106,8 +106,10 @@ namespace econ2 {
 
 namespace eir {
 	constexpr uint8_t pktif = (1 << 6);
+	constexpr uint8_t linkif = (1 << 4);
 	constexpr uint8_t txif = (1 << 3);
 	constexpr uint8_t txerif = (1 << 1);
+	constexpr uint8_t rxerif = (1 << 0);
 } // namespace eir
 
 namespace macon1 {
