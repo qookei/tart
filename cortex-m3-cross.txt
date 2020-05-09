@@ -1,7 +1,6 @@
 [binaries]
-c = 'clang'
-cpp = 'clang++'
-ld = 'lld'
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
 strip = 'arm-none-eabi-strip'
 objcopy = 'arm-none-eabi-objcopy'
 size = 'arm-none-eabi-size'
@@ -20,27 +19,18 @@ alignment_double = 4
 has_function_printf = false
 
 cpp_args = [
-	'-target', 'arm-none-eabi',
-	'-I/usr/arm-none-eabi/include/9.3.0',
-	'-I/usr/arm-none-eabi/include/9.3.0/arm-none-eabi/thumb/v7-m/nofp',
 	'-ffreestanding',
 	'-mtune=cortex-m3',
 	'-msoft-float',
-	'-ffunction-sections',
-	'-fdata-sections',
 	'-mthumb',
 	'-fno-common',
 	'-nostdlib',
 	'-mcpu=cortex-m3']
 
 cpp_link_args = [
-	'-target', 'arm-none-eabi',
-	'-L/usr/lib/gcc/arm-none-eabi/9.3.0',
 	'-ffreestanding',
 	'-mtune=cortex-m3',
 	'-msoft-float',
-	'-ffunction-sections',
-	'-fdata-sections',
 	'-mthumb',
 	'-fno-common',
 	'-mcpu=cortex-m3',

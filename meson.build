@@ -14,7 +14,7 @@ inc = include_directories('src')
 
 subdir('src/platform')
 
-cpp_args = ['-fcoroutines-ts', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
+cpp_args = ['-fcoroutines', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
 		'-DCXXSHIM_INTEGRATE_GCC', '-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
@@ -24,7 +24,7 @@ libarch = subproject('libarch', default_options: ['install_headers=false'])
 
 frigg_dep = frigg.get_variable('frigg_dep')
 cxxshim_dep = cxxshim.get_variable('cxxshim_dep')
-cxxshim_clang_coro_dep = cxxshim.get_variable('clang_coroutine_dep')
+cxxshim_std_coro_dep = cxxshim.get_variable('std_coroutine_dep')
 libarch_dep = libarch.get_variable('libarch_dep')
 libasync_inc = include_directories('subprojects/libasync/include')
 
@@ -44,7 +44,7 @@ sources = [
 
 elf = executable('tart.elf', sources,
 		include_directories: [inc, libasync_inc],
-		dependencies: [frigg_dep, cxxshim_dep, cxxshim_clang_coro_dep, libarch_dep],
+		dependencies: [frigg_dep, cxxshim_dep, cxxshim_std_coro_dep, libarch_dep],
 		cpp_args: [cpp_args],
 		link_args: [link_args, '-lgcc'],
 		link_depends: [files(platform_ld, this_platform_ld)])

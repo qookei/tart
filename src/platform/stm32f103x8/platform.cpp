@@ -19,8 +19,7 @@ void nmi() {
 	lib::panic("unexpected nmi\r\n");
 }
 
-[[gnu::used]]
-extern "C" void actual_hard_fault(uintptr_t *stack) {
+extern "C" [[gnu::used]] void actual_hard_fault(uintptr_t *stack) {
 	lib::log("unexpected hard fault\r\n");
 	lib::log("r0  = 0x%08x\r\n", stack[0]);
 	lib::log("r1  = 0x%08x\r\n", stack[1]);
