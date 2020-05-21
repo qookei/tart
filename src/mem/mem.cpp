@@ -6,16 +6,17 @@ extern "C" int _bss_end;
 namespace mem {
 
 bump_policy::bump_policy()
-:_top((reinterpret_cast<uintptr_t>(&_bss_end) + pagesize - 1)
+:top_((reinterpret_cast<uintptr_t>(&_bss_end) + pagesize - 1)
 		& ~(pagesize - 1)) {}
 
-uintptr_t bump_policy::map(size_t s) {
+uintptr_t bump_policy::map(size_t s, size_t alignment) {
 	uintptr_t sp;
-	uintptr_t p = _top;
+	uintptr_t p = (top_ = (top_ + alignment - 1) & ~(alignment - 1));
 
 	asm volatile ("mov %[v], sp" : [v] "=r" (sp) : : "memory");
 
-	_top += s;
+	lib::log("bump_policy::map: allocating %lu bytes at 0x%lx\r\n", s, p);
+	top_ += s;
 
 	if (p + s > sp) {
 		lib::panic("bump_policy::map: agh, the heap is trampling over our stack, bailing out\r\n");
@@ -26,7 +27,7 @@ uintptr_t bump_policy::map(size_t s) {
 }
 
 void bump_policy::unmap(uintptr_t, size_t) {
-	lib::log("bump_policy::unmap: stub unmap called\r\n");
+	lib::panic("bump_policy::unmap: stub unmap called\r\n");
 }
 
 // --------------------------------------------------------------------

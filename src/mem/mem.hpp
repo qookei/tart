@@ -13,11 +13,11 @@ struct bump_policy {
 
 	bump_policy();
 
-	uintptr_t map(size_t s);
+	uintptr_t map(size_t s, size_t alignment);
 	void unmap(uintptr_t, size_t);
 
 private:
-	uintptr_t _top;
+	uintptr_t top_;
 };
 
 using allocator = frg::slab_allocator<bump_policy, lib::noop_lock>;

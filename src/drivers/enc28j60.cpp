@@ -91,13 +91,13 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 	//mem::buffer pkt{sizeof(test_data)};
 	//memcpy(pkt.data(), test_data, pkt.size());
 
-	//lib::log("enc28j60_nic: submitting test packet send (arp query for 192.168.1.102)\r\n");
+	//lib::log("enc28j60_nic: submitting test packet send (arp query for 192.168.1.103)\r\n");
 	//send_queue_.emplace(std::move(pkt));
 
 	run_send();
 
 	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
-	while(1) {
+	while (true) {
 		co_await receive_irq_.async_wait();
 		bool was_err = receive_error_.exchange(false);
 		assert(!was_err);
@@ -111,8 +111,6 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 		read_buffer(status, 0, 4);
 		memcpy(&len, status, 2);
 		assert(len < 1522);
-
-		lib::log("len = %u\r\n", len);
 
 		cur_ptr = next_ptr;
 
@@ -133,7 +131,7 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 }
 
 async::detached enc28j60_nic::run_send() {
-	while(true) {
+	while (true) {
 		auto buffer = std::move(*(co_await send_queue_.async_get()));
 		lib::log("enc28j60_nic::run_send(): got a packet to send\r\n");
 
