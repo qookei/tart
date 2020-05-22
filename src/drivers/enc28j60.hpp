@@ -44,6 +44,8 @@ namespace drivers {
 		std::atomic_bool receive_error_;
 
 		async::doorbell link_irq_;
+
+		net::mac mac_;
 	};
 
 } // namespace drivers

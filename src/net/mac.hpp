@@ -27,6 +27,18 @@ namespace net {
 			const uint8_t *bytes = static_cast<const uint8_t *>(data);
 			return mac{bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]};
 		}
+
+		size_t get_size() {
+			return 6;
+		}
+
+		void *to_bytes(void *ptr) {
+			uint8_t *dest = static_cast<uint8_t *>(ptr);
+			for (int i = 0; i < 6; i++)
+				*dest++ = v[i];
+
+			return dest;
+		}
 	};
 
 	namespace mac_addr {

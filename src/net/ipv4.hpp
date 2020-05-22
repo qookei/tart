@@ -24,6 +24,18 @@ namespace net {
 			const uint8_t *bytes = static_cast<const uint8_t *>(data);
 			return ipv4_addr{bytes[0], bytes[1], bytes[2], bytes[3]};
 		}
+
+		size_t get_size() {
+			return 4;
+		}
+
+		void *to_bytes(void *ptr) {
+			uint8_t *dest = static_cast<uint8_t *>(ptr);
+			for (int i = 0; i < 4; i++)
+				*dest++ = v[i];
+
+			return dest;
+		}
 	};
 
 	struct ipv4_frame {

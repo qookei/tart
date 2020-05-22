@@ -24,6 +24,21 @@ namespace net {
 			return ethernet_frame{src, dst, type, payload, size - 18};
 		}
 
+		// This does not include any padding or the CRC
+		size_t get_size() {
+			return 14;
+		}
+
+		void *to_bytes(void *ptr) {
+			uint8_t *d = static_cast<uint8_t *>(ptr);
+			d = static_cast<uint8_t *>(dest.to_bytes(d));
+			d = static_cast<uint8_t *>(source.to_bytes(d));
+			*d++ = (type >> 8) & 0xFF;
+			*d++ = (type) & 0xFF;
+
+			return d;
+		}
+
 		static constexpr uint16_t ipv4_type = 0x0800;
 		static constexpr uint16_t ipv6_type = 0x86DD;
 		static constexpr uint16_t arp_type = 0x0806;

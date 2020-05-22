@@ -12,7 +12,6 @@ namespace net {
 		uint8_t proto_len;
 		uint16_t operation;
 
-		// ?
 		mac sender_hw_address;
 		ipv4_addr sender_proto_address;
 
@@ -27,12 +26,47 @@ namespace net {
 			f.hw_len = bytes[4];
 			f.proto_len = bytes[5];
 			f.operation = (uint16_t(bytes[6]) << 8) | bytes[7];
+
+			assert(f.hw_type == 0x0001);
+			assert(f.proto_type == 0x0800);
+			assert(f.hw_len == 6);
+			assert(f.proto_len == 4);
+
 			f.sender_hw_address = mac::from_bytes(bytes + 8);
 			f.target_hw_address = mac::from_bytes(bytes + 18);
 
 			f.sender_proto_address = ipv4_addr::from_bytes(bytes + 14);
 			f.target_proto_address = ipv4_addr::from_bytes(bytes + 24);
 			return f;
+		}
+
+		size_t get_size() {
+			return 8 + hw_len * 2 + proto_len * 2;
+		}
+
+		void *to_bytes(void *ptr) {
+			uint8_t *dest = static_cast<uint8_t *>(ptr);
+			*dest++ = (hw_type >> 8) & 0xFF;
+			*dest++ = (hw_type) & 0xFF;
+			*dest++ = (proto_type >> 8) & 0xFF;
+			*dest++ = (proto_type) & 0xFF;
+			*dest++ = hw_len;
+			*dest++ = proto_len;
+
+			assert(hw_type == 0x0001);
+			assert(proto_type == 0x0800);
+			assert(hw_len == 6);
+			assert(proto_len == 4);
+
+			*dest++ = (operation >> 8) & 0xFF;
+			*dest++ = (operation) & 0xFF;
+
+			dest = static_cast<uint8_t *>(sender_hw_address.to_bytes(dest));
+			dest = static_cast<uint8_t *>(sender_proto_address.to_bytes(dest));
+			dest = static_cast<uint8_t *>(target_hw_address.to_bytes(dest));
+			dest = static_cast<uint8_t *>(target_proto_address.to_bytes(dest));
+
+			return dest;
 		}
 	};
 } // namespace net

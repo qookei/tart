@@ -7,6 +7,9 @@
 #include <mem/buffer.hpp>
 #include <frg/utility.hpp>
 #include <net/process.hpp>
+#include <net/builder.hpp>
+#include <net/ether.hpp>
+#include <net/arp.hpp>
 
 namespace drivers {
 
@@ -63,6 +66,8 @@ void enc28j60_nic::setup(const net::mac &mac) {
 
 	// setup phy
 	write_phy(phy_reg::phcon1, phcon1::pdpxmd);
+
+	mac_ = mac;
 }
 
 async::detached enc28j60_nic::run(net::processor &pr) {
@@ -73,26 +78,12 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 
 	uint16_t cur_ptr = rx_start;
 
-	//uint8_t test_data[] = {
-	//	0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-	//	0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
-	//	0x08, 0x06,
-	//	0x00, 0x01,
-	//	0x08, 0x00,
-	//	0x06,
-	//	0x04,
-	//	0x00, 0x01,
-	//	0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA,
-	//	0x00, 0x00, 0x00, 0x00,
-	//	0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	//	0xC0, 0xA8, 0x01, 0x67
-	//};
+	auto buffer = net::build_packet(
+		net::ethernet_frame{mac_, net::mac_addr::broadcast, net::ethernet_frame::arp_type},
+		net::arp_frame{0x0001, 0x0800, 6, 4, 1, mac_, {}, {}, {192, 168, 1, 102}}
+	);
 
-	//mem::buffer pkt{sizeof(test_data)};
-	//memcpy(pkt.data(), test_data, pkt.size());
-
-	//lib::log("enc28j60_nic: submitting test packet send (arp query for 192.168.1.103)\r\n");
-	//send_queue_.emplace(std::move(pkt));
+	send_queue_.emplace(std::move(buffer));
 
 	run_send();
 
