@@ -17,12 +17,15 @@ void run() {
 
 	spi::spi_dev dev2{spi::get_spi(2), gpio::pa2};
 	drivers::enc28j60_nic nic{&dev2};
-	net::processor pr;
+	//net::processor pr;
+	net::ether_dispatcher<
+		drivers::enc28j60_nic,
+		net::null_processor
+	> ed{nic};
 
 	// 56:95:77:9C:48:BA
 	nic.setup({0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA});
-	nic.run(pr);
-	pr.process_packets();
+	ed.run();
 
 	ios.attach_waiter(nic);
 

@@ -15,7 +15,8 @@ inc = include_directories('src')
 subdir('src/platform')
 
 cpp_args = ['-fcoroutines', '-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
-		'-DCXXSHIM_INTEGRATE_GCC', '-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer']
+		'-DCXXSHIM_INTEGRATE_GCC', '-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer', '-Wl,--build-id',
+		'-fconcepts-diagnostics-depth=4']
 link_args = ['-T', this_platform_ld, '-T', platform_ld]
 
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
@@ -46,7 +47,7 @@ elf = executable('tart.elf', sources,
 		include_directories: [inc, libasync_inc],
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_std_coro_dep, libarch_dep],
 		cpp_args: [cpp_args],
-		link_args: [link_args, '-lgcc'],
+		link_args: [link_args, '-lgcc', '-Wl,--build-id'],
 		link_depends: [files(platform_ld, this_platform_ld)])
 
 bin = custom_target('tart.bin',

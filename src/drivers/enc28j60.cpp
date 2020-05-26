@@ -70,7 +70,7 @@ void enc28j60_nic::setup(const net::mac &mac) {
 	mac_ = mac;
 }
 
-async::detached enc28j60_nic::run(net::processor &pr) {
+async::detached enc28j60_nic::run() {
 	uint8_t rev = read_reg(reg::erevid);
 	lib::log("enc28j60_nic::run: sillicon revision: %02x\r\n", rev);
 
@@ -86,6 +86,9 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 	send_queue_.emplace(std::move(buffer));
 
 	run_send();
+
+	async::promise<void> hack_;
+	hack_.set_value();
 
 	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
 	while (true) {
@@ -116,8 +119,15 @@ async::detached enc28j60_nic::run(net::processor &pr) {
 			write_reg(reg::erxrdpth, ((next_ptr - 1) >> 8) & 0xFF);
 		}
 
-		pr.push_packet(std::move(buf));
+		recv_queue_.emplace(std::move(buf));
 		reg_bit_set(reg::econ2, econ2::pktdec);
+
+		// don't fill up the recv_queue_ too much and run out of memory by accident
+		// HACK: async::yield_to_current_queue doesn't work with gcc
+		//       for whatever reason, so instead we use an already set
+		//       promise to force a switch to a different coroutine
+		//co_await async::yield_to_current_queue();
+		co_await hack_.async_get();
 	}
 }
 
@@ -151,6 +161,7 @@ async::detached enc28j60_nic::run_send() {
 		// wait for completion
 		co_await transmit_irq_.async_wait();
 		bool was_err = transmit_error_.exchange(false);
+		assert(!was_err && "TODO: retry transmission");
 
 		reg_bit_reset(reg::econ1, econ1::txrts);
 

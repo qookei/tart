@@ -37,11 +37,11 @@ SECTIONS {
 		_bss_end = .;
 	} >ram
 
-	/DISCARD/ : {
+	/*/DISCARD/ : {
 		*(.eh_frame)
 		*(.ARM.extab*)
 		*(.ARM.exidx*)
-	}
+	}*/
 
 	. = ALIGN(4);
 	image_end = .;

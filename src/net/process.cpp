@@ -72,7 +72,7 @@ void process_ipv4(ethernet_frame &frame) {
 }
 
 } // namespace anonymous
-
+/*
 async::detached processor::process_packets() {
 	while(true) {
 		auto buffer = std::move(*(co_await raw_packet_queue_.async_get()));
@@ -104,5 +104,5 @@ async::detached processor::process_packets() {
 void processor::push_packet(mem::buffer &&b) {
 	raw_packet_queue_.emplace(std::move(b));
 }
-
+*/
 } // namespace net
