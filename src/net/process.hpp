@@ -20,9 +20,18 @@ namespace net {
 		{ operator co_await(std::move(a)).await_resume() } -> std::same_as<T>;
 	};
 
+	struct sender {
+		virtual ~sender() { }
+		virtual async::result<void> send_packet(mem::buffer &&) = 0;
+		virtual net::mac mac() = 0;
+	};
+
 	template <typename T>
-	concept processor = requires (T a, mem::buffer &&b, typename T::from_frame_type &&f, const typename T::from_frame_type &f2) {
+	concept processor = requires (T a, mem::buffer &&b,
+			typename T::from_frame_type &&f,
+			const typename T::from_frame_type &f2, sender *s) {
 		typename T::from_frame_type;
+		{ a.attach_sender(s) } -> std::same_as<void>;
 		{ a.push_packet(std::move(b), std::move(f)) } -> awaits_to<void>;
 		{ a.matches(f2) } -> std::same_as<bool>;
 	};
@@ -30,6 +39,7 @@ namespace net {
 	struct null_processor {
 		using from_frame_type = ethernet_frame;
 
+		void attach_sender(sender *) { }
 		async::result<void> push_packet(mem::buffer &&, ethernet_frame &&) { co_return; }
 		bool matches(const ethernet_frame &) { return false; }
 	};
@@ -45,9 +55,13 @@ namespace net {
 	};
 
 	template <nic Nic, processor ...Ts>
-	struct ether_dispatcher {
+	struct ether_dispatcher : public sender {
 		ether_dispatcher(Nic &nic)
-		: nic_{&nic}, processors_{} {}
+		: nic_{&nic}, processors_{} {
+			[&]<size_t ...I>(std::index_sequence<I...>) {
+				(processors_.template get<I>().attach_sender(this), ...);
+			}(std::make_index_sequence<sizeof...(Ts)>{});
+		}
 
 		async::detached run() {
 			nic_->run();
@@ -70,6 +84,20 @@ namespace net {
 				}(std::make_index_sequence<sizeof...(Ts)>{});
 			}
 		}
+
+		async::result<void> send_packet(mem::buffer &&b) override {
+			co_await nic_->send_packet(std::move(b));
+		}
+
+		net::mac mac() override {
+			return nic_->mac();
+		}
+
+		template <size_t I>
+		auto &nth_processor() {
+			return processors_.template get<I>();
+		}
+
 	private:
 		Nic *nic_;
 		frg::tuple<Ts...> processors_;

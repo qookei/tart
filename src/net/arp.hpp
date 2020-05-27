@@ -1,8 +1,12 @@
 #pragma once
 
+#include <stdint.h>
+#include <stddef.h>
 #include <net/mac.hpp>
-#include <net/ipv4.hpp>
 #include <net/ether.hpp>
+#include <net/ipv4.hpp>
+#include <net/process.hpp>
+#include <async/doorbell.hpp>
 
 namespace net {
 	struct arp_frame {
@@ -68,5 +72,59 @@ namespace net {
 
 			return dest;
 		}
+
+		static arp_frame query_for(mac from_mac, ipv4_addr from_ip, ipv4_addr for_ip) {
+			return arp_frame{0x0001, 0x0800, 6, 4, 1, from_mac, from_ip, {}, for_ip};
+		}
+
+		static arp_frame reply_for(mac from_mac, ipv4_addr from_ip, mac for_mac, ipv4_addr for_ip) {
+			return arp_frame{0x0001, 0x0800, 6, 4, 2, from_mac, from_ip, for_mac, for_ip};
+		}
 	};
+
+	// put somewhere else?
+	struct route {
+		ipv4_addr ip_;
+		mac mac_;
+		bool resolved_;
+		async::doorbell doorbell_;
+
+		bool operator==(const route &other) const {
+			return ip_ == other.ip_ && mac_ == other.mac_;
+		}
+
+		frg::default_list_hook<route> node_;
+	};
+
+	struct arp_processor {
+		using from_frame_type = ethernet_frame;
+
+		arp_processor()
+		: routes_{}, sender_{nullptr}, our_ip_{} { }
+
+		void attach_sender(sender *s) { sender_ = s; }
+		void set_our_ip(ipv4_addr ip) { our_ip_ = ip; }
+
+		async::result<void> push_packet(mem::buffer &&b, ethernet_frame &&);
+		bool matches(const ethernet_frame &f);
+		async::result<frg::optional<mac>> mac_of(ipv4_addr ip);
+
+	private:
+		async::result<void> submit_query_for(ipv4_addr ip);
+		async::result<void> submit_reply_for(mac target_mac, ipv4_addr target_ip);
+
+		frg::intrusive_list<
+			route,
+			frg::locate_member<
+				route,
+				frg::default_list_hook<route>,
+				&route::node_
+			>
+		> routes_;
+
+		sender *sender_;
+		ipv4_addr our_ip_;
+	};
+
+	static_assert(net::processor<arp_processor>);
 } // namespace net

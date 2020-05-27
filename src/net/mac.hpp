@@ -23,6 +23,10 @@ namespace net {
 			return !(*this == other);
 		}
 
+		operator bool() const {
+			return *this == mac{0, 0, 0, 0, 0, 0};
+		}
+
 		static mac from_bytes(const void *data) {
 			const uint8_t *bytes = static_cast<const uint8_t *>(data);
 			return mac{bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5]};

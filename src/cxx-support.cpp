@@ -7,6 +7,10 @@ extern "C" [[gnu::used]] void __cxa_pure_virtual() {
 
 #ifdef CLANG_MEMES
 extern "C" {
+	[[gnu::used]] void *__aeabi_memclr(void *dest, size_t size) {
+		return memset(dest, 0, size);
+	}
+
 	[[gnu::used]] void *__aeabi_memclr4(void *dest, size_t size) {
 		return memset(dest, 0, size);
 	}

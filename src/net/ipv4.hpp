@@ -20,6 +20,10 @@ namespace net {
 			return !(*this == other);
 		}
 
+		operator bool() const {
+			return *this == ipv4_addr{0, 0, 0, 0};
+		}
+
 		static ipv4_addr from_bytes(const void *data) {
 			const uint8_t *bytes = static_cast<const uint8_t *>(data);
 			return ipv4_addr{bytes[0], bytes[1], bytes[2], bytes[3]};

@@ -23,6 +23,7 @@ namespace drivers {
 
 		async::result<void> send_packet(mem::buffer &&b) {
 			send_queue_.emplace(std::move(b));
+			co_return;
 		}
 
 		async::result<mem::buffer> recv_packet() {

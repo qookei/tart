@@ -12,40 +12,6 @@ namespace net {
 
 namespace {
 
-void process_arp(ethernet_frame &frame) {
-	auto arp = arp_frame::from_ethernet_frame(frame);
-	lib::log("net::process_arp: got arp packet, hw type %04x, proto type %04x, hw len %02x, proto len %02x, operation %04x\r\n", arp.hw_type, arp.proto_type, arp.hw_len, arp.proto_len, arp.operation);
-	if (arp.operation == 1) {
-		lib::log("net::process_arp: who has %u.%u.%u.%u, tell %u.%u.%u.%u (%02x:%02x:%02x:%02x:%02x:%02x)\r\n",
-			arp.target_proto_address[0],
-			arp.target_proto_address[1],
-			arp.target_proto_address[2],
-			arp.target_proto_address[3],
-			arp.sender_proto_address[0],
-			arp.sender_proto_address[1],
-			arp.sender_proto_address[2],
-			arp.sender_proto_address[3],
-			arp.sender_hw_address[0],
-			arp.sender_hw_address[1],
-			arp.sender_hw_address[2],
-			arp.sender_hw_address[3],
-			arp.sender_hw_address[4],
-			arp.sender_hw_address[5]);
-	} else if (arp.operation == 2) {
-		lib::log("net::process_arp: %u.%u.%u.%u is at %02x:%02x:%02x:%02x:%02x:%02x\r\n",
-			arp.sender_proto_address[0],
-			arp.sender_proto_address[1],
-			arp.sender_proto_address[2],
-			arp.sender_proto_address[3],
-			arp.sender_hw_address[0],
-			arp.sender_hw_address[1],
-			arp.sender_hw_address[2],
-			arp.sender_hw_address[3],
-			arp.sender_hw_address[4],
-			arp.sender_hw_address[5]);
-	}
-}
-
 void process_ipv4(ethernet_frame &frame) {
 	auto ipv4 = ipv4_frame::from_ethernet_frame(frame);
 

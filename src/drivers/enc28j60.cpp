@@ -78,17 +78,7 @@ async::detached enc28j60_nic::run() {
 
 	uint16_t cur_ptr = rx_start;
 
-	auto buffer = net::build_packet(
-		net::ethernet_frame{mac_, net::mac_addr::broadcast, net::ethernet_frame::arp_type},
-		net::arp_frame{0x0001, 0x0800, 6, 4, 1, mac_, {}, {}, {192, 168, 1, 102}}
-	);
-
-	send_queue_.emplace(std::move(buffer));
-
 	run_send();
-
-	async::promise<void> hack_;
-	hack_.set_value();
 
 	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
 	while (true) {
@@ -123,11 +113,7 @@ async::detached enc28j60_nic::run() {
 		reg_bit_set(reg::econ2, econ2::pktdec);
 
 		// don't fill up the recv_queue_ too much and run out of memory by accident
-		// HACK: async::yield_to_current_queue doesn't work with gcc
-		//       for whatever reason, so instead we use an already set
-		//       promise to force a switch to a different coroutine
-		//co_await async::yield_to_current_queue();
-		co_await hack_.async_get();
+		co_await async::yield_to_current_queue();
 	}
 }
 
