@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+#include <net/process.hpp>
+
 namespace net {
 	struct ipv4_addr {
 		uint8_t v[4];
@@ -75,5 +77,41 @@ namespace net {
 		static constexpr uint8_t encap_proto = 41;
 		static constexpr uint8_t ospf_proto = 89;
 		static constexpr uint8_t sctp_proto = 132;
+	};
+
+	template <processor ...Ts>
+		requires (std::same_as<typename Ts::from_frame_type, ipv4_frame> && ...)
+	struct ipv4_processor {
+		using from_frame_type = ethernet_frame;
+
+		void attach_sender(sender *s) requires (sizeof...(Ts) > 0) {
+			[&]<size_t ...I>(std::index_sequence<I...>) {
+				(processors_.template get<I>().attach_sender(s), ...);
+			}(std::make_index_sequence<sizeof...(Ts)>{});
+		}
+
+		// TODO: remove this once we have some ipv4_frame-based processors
+		void attach_sender(sender *) requires (sizeof...(Ts) == 0) {
+		}
+
+		async::result<void> push_packet(mem::buffer &&b, ethernet_frame &&f) {
+			auto ipv4 = ipv4_frame::from_ethernet_frame(f);
+
+			lib::log("net::process_ipv4: got ipv4 packet, source %u.%u.%u.%u, dest %u.%u.%u.%u, protocol %u, ttl %u\r\n",
+				ipv4.source[0], ipv4.source[1],
+				ipv4.source[2], ipv4.source[3],
+				ipv4.dest[0], ipv4.dest[1],
+				ipv4.dest[2], ipv4.dest[3],
+				ipv4.protocol, ipv4.ttl);
+
+			co_await dispatch_frame(std::move(b), std::move(f), processors_);
+		}
+
+		bool matches(const ethernet_frame &f) {
+			return f.type == ethernet_frame::ipv4_type;
+		}
+
+	private:
+		frg::tuple<Ts...> processors_;
 	};
 } // namespace net

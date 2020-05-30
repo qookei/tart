@@ -37,16 +37,6 @@ namespace net {
 		{ a.matches(f2) } -> std::same_as<bool>;
 	};
 
-	struct null_processor {
-		using from_frame_type = ethernet_frame;
-
-		void attach_sender(sender *) { }
-		async::result<void> push_packet(mem::buffer &&, ethernet_frame &&) { co_return; }
-		bool matches(const ethernet_frame &) { return false; }
-	};
-
-	static_assert(processor<null_processor>);
-
 	template <typename T>
 	concept nic = requires (T a, mem::buffer &&b) {
 		{ a.recv_packet() } -> awaits_to<mem::buffer>;

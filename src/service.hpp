@@ -30,7 +30,7 @@ private:
 	drivers::enc28j60_nic nic_;
 	net::ether_dispatcher<
 		drivers::enc28j60_nic,
-		net::null_processor,
+		net::ipv4_processor<>,
 		net::arp_processor
 	> ed_;
 };
