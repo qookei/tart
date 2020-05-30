@@ -8,6 +8,7 @@
 #include <mem/buffer.hpp>
 
 #include <frg/tuple.hpp>
+#include <type_traits>
 
 #include <net/mac.hpp>
 #include <net/ether.hpp>
@@ -54,7 +55,31 @@ namespace net {
 		{ a.run() } -> std::same_as<async::detached>;
 	};
 
+	template <typename From>
+	async::result<void> dispatch_frame(mem::buffer &&, From &&, frg::tuple<> &) {
+		// no op
+		co_return;
+	}
+
+	template <typename From, processor ...Ts>
+	async::result<void> dispatch_frame(mem::buffer &&bu, From &&fr, frg::tuple<Ts...> &pr) {
+		co_await [&]<size_t ...I>(std::index_sequence<I...>) -> async::result<void> {
+			auto f = [&]<typename T>(T &proc) -> async::result<bool> {
+				static_assert(std::is_same_v<From, typename T::from_frame_type>);
+				if (proc.matches(fr)) {
+					co_await proc.push_packet(std::move(bu), std::move(fr));
+					co_return false;
+				}
+
+				co_return true;
+			};
+
+			((co_await f(pr.template get<I>())) && ...);
+		}(std::make_index_sequence<sizeof...(Ts)>{});
+	}
+
 	template <nic Nic, processor ...Ts>
+		requires (std::same_as<typename Ts::from_frame_type, ethernet_frame> && ...)
 	struct ether_dispatcher : public sender {
 		ether_dispatcher(Nic &nic)
 		: nic_{&nic}, processors_{} {
@@ -69,19 +94,7 @@ namespace net {
 			while (true) {
 				auto buffer = co_await nic_->recv_packet();
 				auto ether = ethernet_frame::from_bytes(buffer.data(), buffer.size());
-
-				co_await [&]<size_t ...I>(std::index_sequence<I...>) -> async::result<void> {
-					auto f = [&](auto &proc) -> async::result<bool> {
-						if (proc.matches(ether)) {
-							co_await proc.push_packet(std::move(buffer), std::move(ether));
-							co_return false;
-						}
-
-						co_return true;
-					};
-
-					((co_await f(processors_.template get<I>())) && ...);
-				}(std::make_index_sequence<sizeof...(Ts)>{});
+				co_await dispatch_frame(std::move(buffer), std::move(ether), processors_);
 			}
 		}
 
