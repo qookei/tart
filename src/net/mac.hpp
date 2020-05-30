@@ -24,7 +24,7 @@ namespace net {
 		}
 
 		operator bool() const {
-			return *this == mac{0, 0, 0, 0, 0, 0};
+			return *this != mac{0, 0, 0, 0, 0, 0};
 		}
 
 		static mac from_bytes(const void *data) {

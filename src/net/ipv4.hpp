@@ -21,7 +21,7 @@ namespace net {
 		}
 
 		operator bool() const {
-			return *this == ipv4_addr{0, 0, 0, 0};
+			return *this != ipv4_addr{0, 0, 0, 0};
 		}
 
 		static ipv4_addr from_bytes(const void *data) {

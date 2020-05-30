@@ -16,11 +16,11 @@ namespace net {
 		uint8_t proto_len;
 		uint16_t operation;
 
-		mac sender_hw_address;
-		ipv4_addr sender_proto_address;
+		mac sender_mac;
+		ipv4_addr sender_ip;
 
-		mac target_hw_address;
-		ipv4_addr target_proto_address;
+		mac target_mac;
+		ipv4_addr target_ip;
 
 		static arp_frame from_ethernet_frame(const ethernet_frame &data) {
 			const uint8_t *bytes = static_cast<const uint8_t *>(data.payload);
@@ -36,11 +36,11 @@ namespace net {
 			assert(f.hw_len == 6);
 			assert(f.proto_len == 4);
 
-			f.sender_hw_address = mac::from_bytes(bytes + 8);
-			f.target_hw_address = mac::from_bytes(bytes + 18);
+			f.sender_mac = mac::from_bytes(bytes + 8);
+			f.target_mac = mac::from_bytes(bytes + 18);
 
-			f.sender_proto_address = ipv4_addr::from_bytes(bytes + 14);
-			f.target_proto_address = ipv4_addr::from_bytes(bytes + 24);
+			f.sender_ip = ipv4_addr::from_bytes(bytes + 14);
+			f.target_ip = ipv4_addr::from_bytes(bytes + 24);
 			return f;
 		}
 
@@ -65,10 +65,10 @@ namespace net {
 			*dest++ = (operation >> 8) & 0xFF;
 			*dest++ = (operation) & 0xFF;
 
-			dest = static_cast<uint8_t *>(sender_hw_address.to_bytes(dest));
-			dest = static_cast<uint8_t *>(sender_proto_address.to_bytes(dest));
-			dest = static_cast<uint8_t *>(target_hw_address.to_bytes(dest));
-			dest = static_cast<uint8_t *>(target_proto_address.to_bytes(dest));
+			dest = static_cast<uint8_t *>(sender_mac.to_bytes(dest));
+			dest = static_cast<uint8_t *>(sender_ip.to_bytes(dest));
+			dest = static_cast<uint8_t *>(target_mac.to_bytes(dest));
+			dest = static_cast<uint8_t *>(target_ip.to_bytes(dest));
 
 			return dest;
 		}

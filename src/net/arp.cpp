@@ -7,48 +7,17 @@ async::result<void> arp_processor::push_packet(
 		mem::buffer &&b, ethernet_frame &&f) {
 	auto arp = arp_frame::from_ethernet_frame(f);
 
-	lib::log("arp_processor::push_packet: got arp packet, operation %04x\r\n", arp.operation);
 	if (arp.operation == 1) {
-		if (arp.target_proto_address == our_ip_) {
-			lib::log("arp_processor::push_packet: arp request for our ip!\r\n");
-			co_await submit_reply_for(arp.sender_hw_address, arp.sender_proto_address);
+		if (arp.target_ip == our_ip_) {
+			co_await submit_reply_for(arp.sender_mac, arp.sender_ip);
 		}
-
-		lib::log("net::process_arp: who has %u.%u.%u.%u, tell %u.%u.%u.%u (%02x:%02x:%02x:%02x:%02x:%02x)\r\n",
-			arp.target_proto_address[0],
-			arp.target_proto_address[1],
-			arp.target_proto_address[2],
-			arp.target_proto_address[3],
-			arp.sender_proto_address[0],
-			arp.sender_proto_address[1],
-			arp.sender_proto_address[2],
-			arp.sender_proto_address[3],
-			arp.sender_hw_address[0],
-			arp.sender_hw_address[1],
-			arp.sender_hw_address[2],
-			arp.sender_hw_address[3],
-			arp.sender_hw_address[4],
-			arp.sender_hw_address[5]);
 	} else if (arp.operation == 2) {
-		lib::log("net::process_arp: %u.%u.%u.%u is at %02x:%02x:%02x:%02x:%02x:%02x\r\n",
-			arp.sender_proto_address[0],
-			arp.sender_proto_address[1],
-			arp.sender_proto_address[2],
-			arp.sender_proto_address[3],
-			arp.sender_hw_address[0],
-			arp.sender_hw_address[1],
-			arp.sender_hw_address[2],
-			arp.sender_hw_address[3],
-			arp.sender_hw_address[4],
-			arp.sender_hw_address[5]);
-
 		for (auto r : routes_) {
-			if (r->ip_ != arp.sender_proto_address)
+			if (r->ip_ != arp.sender_ip)
 				continue;
 
-			// we know the route has a matching ip or mac
-			r->ip_ = arp.sender_proto_address;
-			r->mac_ = arp.sender_hw_address;
+			r->ip_ = arp.sender_ip;
+			r->mac_ = arp.sender_mac;
 			r->resolved_ = true;
 			r->doorbell_.ring();
 		}
