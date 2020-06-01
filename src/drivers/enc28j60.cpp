@@ -6,10 +6,6 @@
 #include <lib/logger.hpp>
 #include <mem/buffer.hpp>
 #include <frg/utility.hpp>
-#include <net/process.hpp>
-#include <net/builder.hpp>
-#include <net/ether.hpp>
-#include <net/arp.hpp>
 
 namespace drivers {
 

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include <net/process.hpp>
+#include <net/dispatch.hpp>
 
 namespace net {
 	struct ipv4_addr {
@@ -84,14 +84,11 @@ namespace net {
 	struct ipv4_processor {
 		using from_frame_type = ethernet_frame;
 
+		void attach_sender(sender *) requires (sizeof...(Ts) == 0) { }
 		void attach_sender(sender *s) requires (sizeof...(Ts) > 0) {
 			[&]<size_t ...I>(std::index_sequence<I...>) {
 				(processors_.template get<I>().attach_sender(s), ...);
 			}(std::make_index_sequence<sizeof...(Ts)>{});
-		}
-
-		// TODO: remove this once we have some ipv4_frame-based processors
-		void attach_sender(sender *) requires (sizeof...(Ts) == 0) {
 		}
 
 		async::result<void> push_packet(mem::buffer &&b, ethernet_frame &&f) {

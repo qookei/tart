@@ -1,6 +1,11 @@
 #pragma once
 
+#include <drivers/enc28j60.hpp>
 #include <async/service.hpp>
+#include <net/dispatch.hpp>
+#include <async/basic.hpp>
+#include <lib/logger.hpp>
+#include <net/arp.hpp>
 
 namespace service {
 

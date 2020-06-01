@@ -1,7 +1,7 @@
 #pragma once
 
 #include <periph/spi.hpp>
-#include <net/process.hpp>
+#include <net/dispatch.hpp>
 #include <net/mac.hpp>
 #include <async/result.hpp>
 #include <async/doorbell.hpp>

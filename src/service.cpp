@@ -1,12 +1,6 @@
-#include <periph/gpio.hpp>
-#include <periph/spi.hpp>
-#include <drivers/enc28j60.hpp>
-#include <lib/logger.hpp>
-#include <async/basic.hpp>
 #include <async/service.hpp>
-#include <net/process.hpp>
-#include <net/arp.hpp>
-
+#include <async/basic.hpp>
+#include <lib/logger.hpp>
 #include <service.hpp>
 
 namespace service {

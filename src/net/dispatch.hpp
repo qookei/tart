@@ -47,7 +47,6 @@ namespace net {
 
 	template <typename From>
 	async::result<void> dispatch_frame(mem::buffer &&, From &&, frg::tuple<> &) {
-		// no op
 		co_return;
 	}
 
@@ -73,9 +72,7 @@ namespace net {
 	struct ether_dispatcher : public sender {
 		ether_dispatcher(Nic &nic)
 		: nic_{&nic}, processors_{} {
-			[&]<size_t ...I>(std::index_sequence<I...>) {
-				(processors_.template get<I>().attach_sender(this), ...);
-			}(std::make_index_sequence<sizeof...(Ts)>{});
+			attach_senders();
 		}
 
 		async::detached run() {
@@ -104,5 +101,12 @@ namespace net {
 	private:
 		Nic *nic_;
 		frg::tuple<Ts...> processors_;
+
+		void attach_senders() requires (sizeof...(Ts) == 0) { }
+		void attach_senders() requires (sizeof...(Ts) > 0) {
+			[&]<size_t ...I>(std::index_sequence<I...>) {
+				(processors_.template get<I>().attach_sender(this), ...);
+			}(std::make_index_sequence<sizeof...(Ts)>{});
+		}
 	};
 } // namespace net

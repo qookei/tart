@@ -5,7 +5,7 @@
 #include <net/mac.hpp>
 #include <net/ether.hpp>
 #include <net/ipv4.hpp>
-#include <net/process.hpp>
+#include <net/dispatch.hpp>
 #include <async/doorbell.hpp>
 
 namespace net {
