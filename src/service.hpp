@@ -1,6 +1,7 @@
 #pragma once
 
 #include <drivers/enc28j60.hpp>
+#include <net/ipv4/icmp.hpp>
 #include <async/service.hpp>
 #include <net/dispatch.hpp>
 #include <async/basic.hpp>
@@ -19,11 +20,10 @@ struct service {
 	async::detached async_main() { 
 		// 56:95:77:9C:48:BA
 		nic_.setup({0x56, 0x95, 0x77, 0x9C, 0x48, 0xBA});
+		ed_.set_ip({192, 168, 1, 69});
 		ed_.run();
 
-		ed_.template nth_processor<1>().set_our_ip({192, 168, 1, 69});
-
-		auto mac = *co_await ed_.template nth_processor<1>().mac_of({192, 168, 1, 102});
+		auto mac = co_await ed_.template nth_processor<1>().mac_of({192, 168, 1, 102});
 		lib::log("tart: 192.168.1.102 is at %02x:%02x:%02x:%02x:%02x:%02x\r\n",
 				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 	}
@@ -35,7 +35,9 @@ private:
 	drivers::enc28j60_nic nic_;
 	net::ether_dispatcher<
 		drivers::enc28j60_nic,
-		net::ipv4_processor<>,
+		net::ipv4_processor<
+			net::icmp_processor
+		>,
 		net::arp_processor
 	> ed_;
 };

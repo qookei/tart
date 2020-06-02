@@ -49,6 +49,10 @@ namespace mem {
 		size_t size() const {
 			return size_;
 		}
+
+		void dump(bool show_base = false) const {
+			lib::dump_buffer(buffer_, size_, show_base);
+		}
 	private:
 		void *buffer_;
 		size_t size_;

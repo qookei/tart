@@ -47,13 +47,16 @@ namespace net {
 		// generate do checksums
 		dest = buf.data();
 		[&]<size_t ...I>(std::index_sequence<I...>) {
-			auto do_csum = [&buf, dest, total_size]<typename T>(T &item) {
+			auto do_csum = [&]<typename T>(T item) {
 				if constexpr (requires_checksum<T>) {
 					ptrdiff_t off = reinterpret_cast<uintptr_t>(dest) - reinterpret_cast<uintptr_t>(buf.data());
 					item.do_checksum(buf.data(), off, total_size);
 				}
+
+				dest = static_cast<uint8_t *>(dest) + item.get_size();
 			};
-			((do_csum(parts.template get<I>()), (dest = static_cast<uint8_t *>(dest) + parts.template get<I>().get_size())), ...);
+
+			(do_csum(parts.template get<I>()), ...);
 		}(std::make_index_sequence<sizeof...(Args)>{});
 
 		return buf;

@@ -3,47 +3,10 @@
 #include <stdint.h>
 
 #include <net/dispatch.hpp>
+#include <net/checksum.hpp>
+#include <net/address.hpp>
 
 namespace net {
-	struct ipv4_addr {
-		uint8_t v[4];
-		uint8_t operator[](size_t i) const {
-			return v[i];
-		}
-
-		bool operator==(const ipv4_addr &other) const {
-			return v[0] == other[0]
-				&& v[1] == other[1]
-				&& v[2] == other[2]
-				&& v[3] == other[3];
-		}
-
-		bool operator!=(const ipv4_addr &other) const {
-			return !(*this == other);
-		}
-
-		operator bool() const {
-			return *this != ipv4_addr{0, 0, 0, 0};
-		}
-
-		static ipv4_addr from_bytes(const void *data) {
-			const uint8_t *bytes = static_cast<const uint8_t *>(data);
-			return ipv4_addr{bytes[0], bytes[1], bytes[2], bytes[3]};
-		}
-
-		size_t get_size() {
-			return 4;
-		}
-
-		void *to_bytes(void *ptr) {
-			uint8_t *dest = static_cast<uint8_t *>(ptr);
-			for (int i = 0; i < 4; i++)
-				*dest++ = v[i];
-
-			return dest;
-		}
-	};
-
 	struct ipv4_frame {
 		ipv4_addr source;
 		ipv4_addr dest;
@@ -55,9 +18,12 @@ namespace net {
 		void *payload;
 		size_t payload_size;
 
+		ethernet_frame ether;
+
 		static ipv4_frame from_ethernet_frame(ethernet_frame &data) {
 			uint8_t *bytes = static_cast<uint8_t *>(data.payload);
 			ipv4_frame f;
+			f.ether = data;
 			f.source = ipv4_addr::from_bytes(bytes + 12);
 			f.dest = ipv4_addr::from_bytes(bytes + 16);
 			f.ihl = bytes[0] & 0xF;
@@ -68,6 +34,58 @@ namespace net {
 			f.payload_size = f.length - f.ihl * 4;
 
 			return f;
+		}
+
+		size_t get_size() {
+			return ihl * 4;
+		}
+
+		void *to_bytes(void *ptr) {
+			uint8_t *buf = static_cast<uint8_t *>(ptr);
+
+			// TODO: support options
+			assert(ihl == 5);
+			*buf++ = (4 << 4) | (ihl);
+			*buf++ = 0;
+
+			uint16_t size = payload_size + ihl * 4;
+			*buf++ = size >> 8;
+			*buf++ = size & 0xFF;
+
+			// Identification
+			*buf++ = 0;
+			*buf++ = 0;
+
+			// Flags & Fragment offset
+			*buf++ = 0;
+			*buf++ = 0;
+
+			*buf++ = ttl;
+			*buf++ = protocol;
+
+			// Checksum
+			*buf++ = 0;
+			*buf++ = 0;
+
+			buf = static_cast<uint8_t *>(source.to_bytes(buf));
+			buf = static_cast<uint8_t *>(dest.to_bytes(buf));
+
+			return buf;
+		}
+
+		void do_checksum (void *buf, ptrdiff_t offset, size_t l) {
+			auto hdr = static_cast<uint8_t *>(buf) + offset;
+
+			// HACK: update total length now that we know it
+			uint16_t len = l - offset;
+			hdr[2] = len >> 8;
+			hdr[3] = len & 0xFF;
+
+			uint16_t sum = checksum::compute(hdr, get_size());
+
+			// Checksum
+			hdr[10] = sum >> 8;
+			hdr[11] = sum & 0xFF;
 		}
 
 		static constexpr uint8_t icmp_proto = 1;
@@ -101,7 +119,7 @@ namespace net {
 				ipv4.dest[2], ipv4.dest[3],
 				ipv4.protocol, ipv4.ttl);
 
-			co_await dispatch_frame(std::move(b), std::move(f), processors_);
+			co_await dispatch_frame(std::move(b), std::move(ipv4), processors_);
 		}
 
 		bool matches(const ethernet_frame &f) {

@@ -16,7 +16,7 @@ namespace {
 	constexpr uint16_t tx_start = 0x0000;
 }
 
-void enc28j60_nic::setup(const net::mac &mac) {
+void enc28j60_nic::setup(const net::mac_addr &mac) {
 	lib::log("enc28j60_nic::setup: resetting\r\n");
 	reset();
 	for (int i = 0; i < 20000000; i++) asm volatile ("nop");
@@ -74,8 +74,6 @@ async::detached enc28j60_nic::run() {
 
 	uint16_t cur_ptr = rx_start;
 
-	run_send();
-
 	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
 	while (true) {
 		co_await receive_irq_.async_wait();
@@ -113,49 +111,49 @@ async::detached enc28j60_nic::run() {
 	}
 }
 
-async::detached enc28j60_nic::run_send() {
-	while (true) {
-		auto buffer = std::move(*(co_await send_queue_.async_get()));
-		lib::log("enc28j60_nic::run_send(): got a packet to send\r\n");
+async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
+	co_await send_mutex_.async_lock();
+	lib::log("enc28j60_nic::send_packet: got a packet to send\r\n");
 
-		reg_bit_set(reg::econ1, econ1::txrst);
-		reg_bit_reset(reg::econ1, econ1::txrst);
-		reg_bit_reset(reg::eir, eir::txif | eir::txerif);
+	reg_bit_set(reg::econ1, econ1::txrst);
+	reg_bit_reset(reg::econ1, econ1::txrst);
+	reg_bit_reset(reg::eir, eir::txif | eir::txerif);
 
-		// the end pointer points at the last byte, not after it
-		uint16_t tx_end = tx_start + buffer.size();
-		// program start pointer
-		write_reg(reg::etxstl, tx_start & 0xFF);
-		write_reg(reg::etxsth, (tx_start >> 8) & 0xFF);
+	// the end pointer points at the last byte, not after it
+	uint16_t tx_end = tx_start + buffer.size();
+	// program start pointer
+	write_reg(reg::etxstl, tx_start & 0xFF);
+	write_reg(reg::etxsth, (tx_start >> 8) & 0xFF);
 
-		uint8_t control[1] = {0}; // use settings from MACON3
-		// write data
-		write_buffer(control, tx_start, 1, true);
-		write_buffer(buffer.data(), 0, buffer.size());
+	uint8_t control[1] = {0}; // use settings from MACON3
+	// write data
+	write_buffer(control, tx_start, 1, true);
+	write_buffer(buffer.data(), 0, buffer.size());
 
-		// program end pointer
-		write_reg(reg::etxndl, tx_end & 0xFF);
-		write_reg(reg::etxndh, (tx_end >> 8) & 0xFF);
+	// program end pointer
+	write_reg(reg::etxndl, tx_end & 0xFF);
+	write_reg(reg::etxndh, (tx_end >> 8) & 0xFF);
 
-		// trigger send
-		reg_bit_set(reg::econ1, econ1::txrts);
+	// trigger send
+	reg_bit_set(reg::econ1, econ1::txrts);
 
-		// wait for completion
-		co_await transmit_irq_.async_wait();
-		bool was_err = transmit_error_.exchange(false);
-		assert(!was_err && "TODO: retry transmission");
+	// wait for completion
+	co_await transmit_irq_.async_wait();
+	bool was_err = transmit_error_.exchange(false);
+	assert(!was_err && "TODO: retry transmission");
 
-		reg_bit_reset(reg::econ1, econ1::txrts);
+	reg_bit_reset(reg::econ1, econ1::txrts);
 
-		auto r = read_reg(reg::estat);
-		if (r & estat::txabrt) {
-			lib::log("enc28j60_nic::run_send: packet transmission aborted\r\n");
-			if (r & estat::latecol) // TODO: unreliable
-				lib::log("enc28j60_nic::run_send: aborted due to late collision\r\n");
-		} else {
-			lib::log("enc28j60_nic::run_send: packet transmitted successfully\r\n");
-		}
+	auto r = read_reg(reg::estat);
+	if (r & estat::txabrt) {
+		lib::log("enc28j60_nic::send_packet: packet transmission aborted\r\n");
+		if (r & estat::latecol) // TODO: unreliable
+			lib::log("enc28j60_nic::send_packet: aborted due to late collision\r\n");
+	} else {
+		lib::log("enc28j60_nic::send_packet: packet transmitted successfully\r\n");
 	}
+
+	send_mutex_.unlock();
 }
 
 bool enc28j60_nic::do_poll() {

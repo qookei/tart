@@ -1,12 +1,12 @@
 #pragma once
 
 #include <stdint.h>
-#include <net/mac.hpp>
+#include <net/address.hpp>
 
 namespace net {
 	struct ethernet_frame {
-		mac source;
-		mac dest;
+		mac_addr source;
+		mac_addr dest;
 
 		uint16_t type;
 
@@ -15,8 +15,8 @@ namespace net {
 
 		static ethernet_frame from_bytes(void *data, size_t size) {
 			uint8_t *bytes = static_cast<uint8_t *>(data);
-			auto dst = mac::from_bytes(bytes);
-			auto src = mac::from_bytes(bytes + 6);
+			auto dst = mac_addr::from_bytes(bytes);
+			auto src = mac_addr::from_bytes(bytes + 6);
 
 			uint16_t type = (uint16_t(bytes[12]) << 8) | bytes[13];
 			void *payload = bytes + 14;

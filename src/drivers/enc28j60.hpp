@@ -2,10 +2,11 @@
 
 #include <periph/spi.hpp>
 #include <net/dispatch.hpp>
-#include <net/mac.hpp>
+#include <net/address.hpp>
 #include <async/result.hpp>
 #include <async/doorbell.hpp>
 #include <async/queue.hpp>
+#include <async/mutex.hpp>
 #include <async/service.hpp>
 
 namespace drivers {
@@ -13,25 +14,20 @@ namespace drivers {
 		enc28j60_nic(spi::spi_dev *dev)
 		:dev_{dev}, send_queue_{mem::get_allocator()}, recv_queue_{mem::get_allocator()} {}
 
-		void setup(const net::mac &mac);
+		void setup(const net::mac_addr &mac);
 		async::detached run();
 		bool do_poll() override;
 
-		net::mac mac() {
+		net::mac_addr mac() {
 			return mac_;
 		}
 
-		async::result<void> send_packet(mem::buffer &&b) {
-			send_queue_.emplace(std::move(b));
-			co_return;
-		}
+		async::result<void> send_packet(mem::buffer &&b);
 
 		async::result<mem::buffer> recv_packet() {
 			co_return std::move(*(co_await recv_queue_.async_get()));
 		}
 	private:
-		async::detached run_send();
-
 		void set_bank(uint8_t bank);
 		uint8_t read_reg(uint8_t reg);
 		void write_reg(uint8_t reg, uint8_t val);
@@ -49,6 +45,7 @@ namespace drivers {
 		void reset();
 
 		spi::spi_dev *dev_;
+		async::mutex send_mutex_;
 		async::queue<mem::buffer, mem::allocator> send_queue_;
 		async::queue<mem::buffer, mem::allocator> recv_queue_;
 
@@ -60,7 +57,7 @@ namespace drivers {
 
 		async::doorbell link_irq_;
 
-		net::mac mac_;
+		net::mac_addr mac_;
 	};
 
 	static_assert(net::nic<enc28j60_nic>);

@@ -71,6 +71,7 @@ sources = [
 		'src/drivers/w25x.cpp',
 		'src/drivers/enc28j60.cpp',
 		'src/net/arp.cpp',
+		'src/net/ipv4/icmp.cpp',
 		'src/service.cpp',
 		'src/cxx-support.cpp'
 	)

@@ -10,10 +10,10 @@
 #include <frg/tuple.hpp>
 #include <type_traits>
 
-#include <net/mac.hpp>
 #include <net/ether.hpp>
 
 #include <concepts>
+#include <net/address.hpp>
 
 namespace net {
 	template <typename Awaiter, typename T>
@@ -24,7 +24,8 @@ namespace net {
 	struct sender {
 		virtual ~sender() { }
 		virtual async::result<void> send_packet(mem::buffer &&) = 0;
-		virtual net::mac mac() = 0;
+		virtual mac_addr mac() = 0;
+		virtual ipv4_addr ip() = 0;
 	};
 
 	template <typename T>
@@ -41,7 +42,7 @@ namespace net {
 	concept nic = requires (T a, mem::buffer &&b) {
 		{ a.recv_packet() } -> awaits_to<mem::buffer>;
 		{ a.send_packet(std::move(b)) } -> awaits_to<void>;
-		{ a.mac() } -> std::same_as<net::mac>;
+		{ a.mac() } -> std::same_as<mac_addr>;
 		{ a.run() } -> std::same_as<async::detached>;
 	};
 
@@ -89,7 +90,7 @@ namespace net {
 			co_await nic_->send_packet(std::move(b));
 		}
 
-		net::mac mac() override {
+		mac_addr mac() override {
 			return nic_->mac();
 		}
 
@@ -98,9 +99,19 @@ namespace net {
 			return processors_.template get<I>();
 		}
 
+		ipv4_addr ip() override {
+			return our_ip_;
+		}
+
+		void set_ip(ipv4_addr ip) {
+			our_ip_ = ip;
+		}
+
 	private:
 		Nic *nic_;
 		frg::tuple<Ts...> processors_;
+
+		ipv4_addr our_ip_;
 
 		void attach_senders() requires (sizeof...(Ts) == 0) { }
 		void attach_senders() requires (sizeof...(Ts) > 0) {
