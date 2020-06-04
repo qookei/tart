@@ -18,8 +18,6 @@ async::result<void> icmp_processor::push_packet(mem::buffer &&b, ipv4_frame &&f)
 			icmp_frame{icmp_frame::echo_reply_type, 0, 0, icmp.ident, icmp.seq, icmp.payload, icmp.payload_size}
 		);
 
-		resp.dump();
-
 		co_await sender_->send_packet(std::move(resp));
 	}
 
