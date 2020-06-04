@@ -78,9 +78,27 @@ async::detached enc28j60_nic::run() {
 	while (true) {
 		co_await receive_irq_.async_wait();
 		bool was_err = receive_error_.exchange(false);
-		assert(!was_err);
 
+		if (was_err) {
+#ifdef ENC28J60_TELL_ME_MORE
+			lib::log("enc28j60_nic::run: an receive error occured? ...\r\n");
+			lib::log("enc28j60_nic::run: epktcnt = %u\r\n", read_reg(reg::epktcnt));
+
+			lib::log("enc28j60_nic::run: cur_ptr = %04x\r\n", cur_ptr);
+
+			uint8_t erxrdptl, erxrdpth;
+			erxrdpth = read_reg(reg::erxrdpth);
+			erxrdptl = read_reg(reg::erxrdptl);
+
+			lib::log("enc28j60_nic::run: erxrdpt = %02x%02x\r\n", erxrdpth, erxrdptl);
+			lib::log("enc28j70_nic::run: dazed and confused, but trying to continue...\r\n");
+#endif
+			continue;
+		}
+
+#ifdef ENC28J60_VERBOSE
 		lib::log("enc28j60_nic::run: got 1 packet\r\n");
+#endif
 
 		uint16_t next_ptr;
 		uint16_t len;
@@ -113,7 +131,10 @@ async::detached enc28j60_nic::run() {
 
 async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	co_await send_mutex_.async_lock();
+
+#ifdef ENC28J60_VERBOSE
 	lib::log("enc28j60_nic::send_packet: got a packet to send\r\n");
+#endif
 
 	reg_bit_set(reg::econ1, econ1::txrst);
 	reg_bit_reset(reg::econ1, econ1::txrst);
@@ -144,6 +165,7 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 
 	reg_bit_reset(reg::econ1, econ1::txrts);
 
+#ifdef ENC28J60_VERBOSE
 	auto r = read_reg(reg::estat);
 	if (r & estat::txabrt) {
 		lib::log("enc28j60_nic::send_packet: packet transmission aborted\r\n");
@@ -152,6 +174,7 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	} else {
 		lib::log("enc28j60_nic::send_packet: packet transmitted successfully\r\n");
 	}
+#endif
 
 	send_mutex_.unlock();
 }

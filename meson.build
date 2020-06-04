@@ -59,6 +59,14 @@ if meson.get_compiler('cpp').get_id() == 'clang'
 	cpp_args += ['-DLIBASYNC_FORCE_USE_EXPERIMENTAL']
 endif
 
+if get_option('enc28j60-verbose')
+	cpp_args += ['-DENC28J60_VERBOSE']
+endif
+
+if get_option('enc28j60-tell-me-more')
+	cpp_args += ['-DENC28J60_TELL_ME_MORE']
+endif
+
 libarch_dep = libarch.get_variable('libarch_dep')
 libasync_inc = include_directories('subprojects/libasync/include')
 

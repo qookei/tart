@@ -1,1 +1,6 @@
-option('platform', type: 'combo', choices: ['stm32f103x8'])
+option('platform', type: 'combo', choices: ['stm32f103x8'],
+	description: 'Select the target platform')
+option('enc28j60-verbose', type: 'boolean', value: false,
+	description: 'Enable debug messages in drivers/enc28j60.cpp')
+option('enc28j60-tell-me-more', type: 'boolean', value: false,
+	description: 'Enable logging on receive errors in drivers/enc28j60.cpp')
