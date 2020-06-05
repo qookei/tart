@@ -65,13 +65,13 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 
 	mac_ = mac;
 
-	// prevent sending while receiver loop is not ready
+	// prevent sending while packet reception was not enabled
 	// there seems to be some more sillicon weirdness where if a send
-	// happens before we start the receive loop we seem to drop
-	// a packet? WTF...
+	// happens and we try to access registers (like erevid or econ1),
+	// reads return 0 and writes seem to be ignored, WTF...
 	// this can be observed by sending an arp query right after setting
 	// up, we send the packet correctly, but the response never arrives
-	// in our rx buffer (or at least pktif or epktcnt never change)...
+	// in our rx buffer, because econ1::rxen doesn't get set properly
 	send_mutex_.try_lock();
 }
 
