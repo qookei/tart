@@ -64,17 +64,38 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 	write_phy(phy_reg::phcon1, phcon1::pdpxmd);
 
 	mac_ = mac;
+
+	// prevent sending while receiver loop is not ready
+	// there seems to be some more sillicon weirdness where if a send
+	// happens before we start the receive loop we seem to drop
+	// a packet? WTF...
+	// this can be observed by sending an arp query right after setting
+	// up, we send the packet correctly, but the response never arrives
+	// in our rx buffer (or at least pktif or epktcnt never change)...
+	send_mutex_.try_lock();
+}
+
+static inline const char *rev_to_str(uint8_t rev) {
+	switch (rev) {
+		case 0b0000'0000: return "unknown (zero)";
+		case 0b0000'0010: return "B1";
+		case 0b0000'0100: return "B4";
+		case 0b0000'0101: return "B5";
+		case 0b0000'0110: return "B7";
+		default: return "unknown (other)";
+	}
 }
 
 async::detached enc28j60_nic::run() {
-	uint8_t rev = read_reg(reg::erevid);
-	lib::log("enc28j60_nic::run: sillicon revision: %02x\r\n", rev);
+	lib::log("enc28j60_nic::run: sillicon revision: %s\r\n",
+			rev_to_str(read_reg(reg::erevid)));
 
 	reg_bit_set(reg::econ1, econ1::rxen);
 
 	uint16_t cur_ptr = rx_start;
 
-	lib::log("enc28j60_nic::run: polling for packet recv\r\n");
+	// unlock send coro, second part of hack from line 75
+	send_mutex_.unlock();
 	while (true) {
 		co_await receive_irq_.async_wait();
 		bool was_err = receive_error_.exchange(false);
