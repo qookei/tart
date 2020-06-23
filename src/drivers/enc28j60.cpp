@@ -10,10 +10,10 @@
 namespace drivers {
 
 namespace {
-	constexpr uint16_t rx_start = 0x1000;
-	constexpr uint16_t rx_end = 0x1FFF;
+	constexpr uint16_t rx_start = 0x0000;
+	constexpr uint16_t rx_end = 0x0FFF;
 
-	constexpr uint16_t tx_start = 0x0000;
+	constexpr uint16_t tx_start = 0x1000;
 }
 
 void enc28j60_nic::setup(const net::mac_addr &mac) {
