@@ -15,6 +15,8 @@
 #include <concepts>
 #include <net/address.hpp>
 
+#include <net/port.hpp>
+
 namespace net {
 	template <typename Awaiter, typename T>
 	concept awaits_to = requires (Awaiter &&a) {
@@ -26,6 +28,8 @@ namespace net {
 		virtual async::result<void> send_packet(mem::buffer &&) = 0;
 		virtual mac_addr mac() = 0;
 		virtual ipv4_addr ip() = 0;
+
+		virtual struct port_allocator &port_allocator() = 0;
 	};
 
 	template <typename T>
@@ -72,7 +76,7 @@ namespace net {
 		requires (std::same_as<typename Ts::from_frame_type, ethernet_frame> && ...)
 	struct ether_dispatcher : public sender {
 		ether_dispatcher(Nic &nic)
-		: nic_{&nic}, processors_{} {
+		: nic_{&nic}, processors_{}, pa_{} {
 			attach_senders();
 		}
 
@@ -107,11 +111,16 @@ namespace net {
 			our_ip_ = ip;
 		}
 
+		struct port_allocator &port_allocator() override {
+			return pa_;
+		}
+
 	private:
 		Nic *nic_;
 		frg::tuple<Ts...> processors_;
 
 		ipv4_addr our_ip_;
+		struct port_allocator pa_;
 
 		void attach_senders() requires (sizeof...(Ts) == 0) { }
 		void attach_senders() requires (sizeof...(Ts) > 0) {
