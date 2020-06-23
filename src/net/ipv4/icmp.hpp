@@ -95,13 +95,11 @@ namespace net {
 		: sender_{nullptr} { }
 
 		void attach_sender(sender *s) { sender_ = s; }
-		// void set_our_ip(ipv4_addr ip) { our_ip_ = ip; }
 
 		async::result<void> push_packet(mem::buffer &&b, ipv4_frame &&);
 		bool matches(const ipv4_frame &f);
 
 	private:
-		//ipv4_addr our_ip_;
 		sender *sender_;
 	};
 

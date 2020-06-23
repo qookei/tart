@@ -109,16 +109,9 @@ namespace net {
 			}(std::make_index_sequence<sizeof...(Ts)>{});
 		}
 
+		// TODO: reassemble fragmented packets
 		async::result<void> push_packet(mem::buffer &&b, ethernet_frame &&f) {
 			auto ipv4 = ipv4_frame::from_ethernet_frame(f);
-
-			lib::log("net::process_ipv4: got ipv4 packet, source %u.%u.%u.%u, dest %u.%u.%u.%u, protocol %u, ttl %u\r\n",
-				ipv4.source[0], ipv4.source[1],
-				ipv4.source[2], ipv4.source[3],
-				ipv4.dest[0], ipv4.dest[1],
-				ipv4.dest[2], ipv4.dest[3],
-				ipv4.protocol, ipv4.ttl);
-
 			co_await dispatch_frame(std::move(b), std::move(ipv4), processors_);
 		}
 

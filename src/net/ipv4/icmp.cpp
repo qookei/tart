@@ -11,7 +11,6 @@ async::result<void> icmp_processor::push_packet(mem::buffer &&b, ipv4_frame &&f)
 		if (f.dest != sender_->ip())
 			co_return;
 
-		lib::log("icmp_processor::push_packet: icmp echo request received\n");
 		auto resp = build_packet(
 			ethernet_frame{sender_->mac(), f.ether.source, ethernet_frame::ipv4_type, nullptr, 0},
 			ipv4_frame{sender_->ip(), f.source, ipv4_frame::icmp_proto, 64, 0, 5, nullptr, 0, {}},

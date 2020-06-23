@@ -15,7 +15,6 @@ uintptr_t bump_policy::map(size_t s, size_t alignment) {
 
 	asm volatile ("mov %[v], sp" : [v] "=r" (sp) : : "memory");
 
-	lib::log("bump_policy::map: allocating %lu bytes at 0x%lx\r\n", s, p);
 	top_ += s;
 
 	if (p + s > sp) {
