@@ -3,6 +3,7 @@
 #include <drivers/enc28j60.hpp>
 #include <net/ipv4/icmp.hpp>
 #include <async/service.hpp>
+#include <net/ipv4/udp.hpp>
 #include <net/dispatch.hpp>
 #include <async/basic.hpp>
 #include <lib/logger.hpp>
@@ -23,9 +24,20 @@ struct service {
 		ed_.set_ip({192, 168, 1, 69});
 		ed_.run();
 
-		auto mac = co_await ed_.template nth_processor<1>().mac_of({192, 168, 1, 102});
-		lib::log("tart: 192.168.1.102 is at %02x:%02x:%02x:%02x:%02x:%02x\r\n",
-				mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+		auto &udp_proc = ed_.nth_processor<0>().nth_processor<1>();
+		udp_proc.set_arp_processor(&ed_.nth_processor<1>());
+
+		auto sock = co_await udp_proc.listen(1337);
+
+		lib::log("tart: %u.%u.%u.%u connected (ports: in %u, out %u)\r\n",
+				sock->ip()[0], sock->ip()[1],
+				sock->ip()[2], sock->ip()[3],
+				sock->in_port(), sock->out_port());
+		while (true) {
+			auto b = co_await sock->recv();
+			lib::log("tart: received '%.*s'\r\n", b.size() - 1, b.data());
+			co_await sock->send(b.data(), b.size());
+		}
 	}
 
 private:
@@ -36,7 +48,8 @@ private:
 	net::ether_dispatcher<
 		drivers::enc28j60_nic,
 		net::ipv4_processor<
-			net::icmp_processor
+			net::icmp_processor,
+			net::udp_processor
 		>,
 		net::arp_processor
 	> ed_;

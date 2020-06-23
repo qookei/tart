@@ -119,6 +119,11 @@ namespace net {
 			return f.type == ethernet_frame::ipv4_type;
 		}
 
+		template <size_t I>
+		auto &nth_processor() {
+			return processors_.template get<I>();
+		}
+
 	private:
 		frg::tuple<Ts...> processors_;
 	};

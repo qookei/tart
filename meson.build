@@ -80,6 +80,7 @@ sources = [
 		'src/drivers/enc28j60.cpp',
 		'src/net/arp.cpp',
 		'src/net/ipv4/icmp.cpp',
+		'src/net/ipv4/udp.cpp',
 		'src/service.cpp',
 		'src/cxx-support.cpp'
 	)

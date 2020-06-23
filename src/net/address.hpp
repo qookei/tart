@@ -87,4 +87,8 @@ namespace net {
 	namespace mac {
 		static constexpr mac_addr broadcast = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
 	} // namespace mac
+
+	namespace ipv4 {
+		static constexpr ipv4_addr broadcast = {255, 255, 255, 255};
+	} // namespace ipv4
 } // namespace net
