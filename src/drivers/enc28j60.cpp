@@ -85,6 +85,7 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 			rev_to_str(read_reg(reg::erevid)));
 }
 
+#ifdef ENC28J60_VERBOSE
 static inline void dump_tsv(uint8_t *tsv) {
 	uint16_t tx_bytes = uint16_t(tsv[0]) | uint16_t(tsv[1] << 8);
 	uint16_t total_bytes = uint16_t(tsv[4]) | uint16_t(tsv[5] << 8);
@@ -140,6 +141,7 @@ static inline void dump_tsv(uint8_t *tsv) {
 	if (tsv[6] & (1 << 3))
 		lib::log("enc28j60_nic::send_packet: vlan tagged frame\r\n");
 }
+#endif
 
 async::detached enc28j60_nic::run() {
 	uint16_t cur_ptr = rx_start;
@@ -217,7 +219,6 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	write_reg(reg::etxstl, tx_start & 0xFF);
 	write_reg(reg::etxsth, (tx_start >> 8) & 0xFF);
 
-	// 0b1011
 	uint8_t control[1] = {0}; // use settings from MACON3
 	// write data
 	write_buffer(control, tx_start, 1, true);
