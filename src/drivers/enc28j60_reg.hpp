@@ -125,7 +125,7 @@ namespace macon3 {
 	constexpr uint8_t hfrmen = (1 << 2);
 	constexpr uint8_t frmlnen = (1 << 1);
 	constexpr uint8_t fuldpx = (1 << 0);
-	constexpr uint8_t padcfg_101 = (0b101 << 5);
+	constexpr uint8_t padcfg_000 = (0b000 << 5);
 } // namespace macon3
 
 namespace mistat {

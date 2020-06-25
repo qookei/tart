@@ -124,8 +124,6 @@ namespace net {
 	private:
 		sender *sender_;
 
-		udp_socket *new_socket_(uint16_t in_port, uint16_t out_port, ipv4_addr ip);
-
 		frg::intrusive_list<
 			udp_socket,
 			frg::locate_member<

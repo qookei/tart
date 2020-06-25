@@ -28,7 +28,7 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 	lib::log("enc28j60_nic::setup: setting up\r\n");
 
 	// program receive buffer
-	// recv buffer at 0x1000 - 0x1FFF
+	// recv buffer at 0x0000 - 0x0FFF
 	// program start pointer
 	write_reg(reg::erxstl, rx_start & 0xFF);
 	write_reg(reg::erxsth, (rx_start >> 8) & 0xFF);
@@ -41,9 +41,11 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 
 	// setup mac
 	// enable receive and ieee flow control
+
 	write_reg(reg::macon1, macon1::marxen | macon1::txpaus | macon1::rxpaus);
+
 	// enable full duplex and automatic padding and automatic crc
-	write_reg(reg::macon3, macon3::fuldpx | macon3::txcrcen | macon3::padcfg_101);
+	write_reg(reg::macon3, macon3::fuldpx | macon3::txcrcen | macon3::padcfg_000);
 	write_reg(reg::macon4, 0);
 
 	// program back-to-back inter-packet gap delay
@@ -161,16 +163,27 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	reg_bit_reset(reg::econ1, econ1::txrst);
 	reg_bit_reset(reg::eir, eir::txif | eir::txerif);
 
+	constexpr size_t padding = 128;
+
 	// the end pointer points at the last byte, not after it
-	uint16_t tx_end = tx_start + buffer.size();
+	uint16_t tx_end = tx_start + frg::max(buffer.size(), padding);
 	// program start pointer
 	write_reg(reg::etxstl, tx_start & 0xFF);
 	write_reg(reg::etxsth, (tx_start >> 8) & 0xFF);
 
+	// 0b1011
 	uint8_t control[1] = {0}; // use settings from MACON3
 	// write data
 	write_buffer(control, tx_start, 1, true);
 	write_buffer(buffer.data(), 0, buffer.size());
+
+	// pad buffer out with zeroes
+	if (buffer.size() < padding) {
+		size_t size = padding - buffer.size();
+		uint8_t zeroes[size];
+		memset(zeroes, 0, size);
+		write_buffer(zeroes, 0, size);
+	}
 
 	// program end pointer
 	write_reg(reg::etxndl, tx_end & 0xFF);
@@ -184,7 +197,9 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	bool was_err = transmit_error_.exchange(false);
 	assert(!was_err && "TODO: retry transmission");
 
-	reg_bit_reset(reg::econ1, econ1::txrts);
+	// read tsv
+	uint8_t tsv[7];
+	read_buffer(tsv, tx_end + 1, 7, true);
 
 #ifdef ENC28J60_VERBOSE
 	auto r = read_reg(reg::estat);
@@ -196,6 +211,8 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 		lib::log("enc28j60_nic::send_packet: packet transmitted successfully\r\n");
 	}
 #endif
+
+	assert(tsv[2] & (1 << 7));
 
 	send_mutex_.unlock();
 }
