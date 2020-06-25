@@ -88,6 +88,62 @@ static inline const char *rev_to_str(uint8_t rev) {
 	}
 }
 
+static inline void dump_tsv(uint8_t *tsv) {
+	uint16_t tx_bytes = uint16_t(tsv[0]) | uint16_t(tsv[1] << 8);
+	uint16_t total_bytes = uint16_t(tsv[4]) | uint16_t(tsv[5] << 8);
+	uint8_t coll_count = tsv[2] & 0xF;
+	lib::log("enc28j60_nic::send_packet: tx bytes = %lu\r\n", tx_bytes);
+	lib::log("enc28j60_nic::send_packet: total bytes on the wire = %lu\r\n", total_bytes);
+	lib::log("enc28j60_nic::send_packet: collisions = %lu\r\n", coll_count);
+	if (tsv[2] & (1 << 4))
+		lib::log("enc28j60_nic::send_packet: crc error\r\n");
+
+	if (tsv[2] & (1 << 5))
+		lib::log("enc28j60_nic::send_packet: length check error\r\n");
+
+	if (tsv[2] & (1 << 6))
+		lib::log("enc28j60_nic::send_packet: length out of range\r\n");
+
+	if (tsv[2] & (1 << 7))
+		lib::log("enc28j60_nic::send_packet: completed\r\n");
+
+	if (tsv[3] & (1 << 0))
+		lib::log("enc28j60_nic::send_packet: multicast\r\n");
+
+	if (tsv[3] & (1 << 1))
+		lib::log("enc28j60_nic::send_packet: broadcast\r\n");
+
+	if (tsv[3] & (1 << 2))
+		lib::log("enc28j60_nic::send_packet: packet defer\r\n");
+
+	if (tsv[3] & (1 << 3))
+		lib::log("enc28j60_nic::send_packet: excessive defer\r\n");
+
+	if (tsv[3] & (1 << 4))
+		lib::log("enc28j60_nic::send_packet: excessive collision\r\n");
+
+	if (tsv[3] & (1 << 5))
+		lib::log("enc28j60_nic::send_packet: late collision\r\n");
+
+	if (tsv[3] & (1 << 6))
+		lib::log("enc28j60_nic::send_packet: giant\r\n");
+
+	if (tsv[3] & (1 << 7))
+		lib::log("enc28j60_nic::send_packet: underrun\r\n");
+
+	if (tsv[6] & (1 << 0))
+		lib::log("enc28j60_nic::send_packet: control frame\r\n");
+
+	if (tsv[6] & (1 << 1))
+		lib::log("enc28j60_nic::send_packet: pause control frame\r\n");
+
+	if (tsv[6] & (1 << 2))
+		lib::log("enc28j60_nic::send_packet: backpressure applied\r\n");
+
+	if (tsv[6] & (1 << 3))
+		lib::log("enc28j60_nic::send_packet: vlan tagged frame\r\n");
+}
+
 async::detached enc28j60_nic::run() {
 	lib::log("enc28j60_nic::run: sillicon revision: %s\r\n",
 			rev_to_str(read_reg(reg::erevid)));
@@ -202,11 +258,11 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	read_buffer(tsv, tx_end + 1, 7, true);
 
 #ifdef ENC28J60_VERBOSE
+	dump_tsv(tsv);
+
 	auto r = read_reg(reg::estat);
 	if (r & estat::txabrt) {
 		lib::log("enc28j60_nic::send_packet: packet transmission aborted\r\n");
-		if (r & estat::latecol) // TODO: unreliable
-			lib::log("enc28j60_nic::send_packet: aborted due to late collision\r\n");
 	} else {
 		lib::log("enc28j60_nic::send_packet: packet transmitted successfully\r\n");
 	}
