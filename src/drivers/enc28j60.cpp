@@ -67,25 +67,22 @@ void enc28j60_nic::setup(const net::mac_addr &mac) {
 
 	mac_ = mac;
 
-	// prevent sending while packet reception was not enabled
-	// there seems to be some more sillicon weirdness where if a send
-	// happens and we try to access registers (like erevid or econ1),
-	// reads return 0 and writes seem to be ignored, WTF...
-	// this can be observed by sending an arp query right after setting
-	// up, we send the packet correctly, but the response never arrives
-	// in our rx buffer, because econ1::rxen doesn't get set properly
-	send_mutex_.try_lock();
-}
+	// enable reception
+	reg_bit_set(reg::econ1, econ1::rxen);
 
-static inline const char *rev_to_str(uint8_t rev) {
-	switch (rev) {
-		case 0b0000'0000: return "unknown (zero)";
-		case 0b0000'0010: return "B1";
-		case 0b0000'0100: return "B4";
-		case 0b0000'0101: return "B5";
-		case 0b0000'0110: return "B7";
-		default: return "unknown (other)";
-	}
+	auto rev_to_str = [](uint8_t rev) -> const char * {
+		switch (rev) {
+			case 0b0000'0000: return "unknown (zero)";
+			case 0b0000'0010: return "B1";
+			case 0b0000'0100: return "B4";
+			case 0b0000'0101: return "B5";
+			case 0b0000'0110: return "B7";
+			default: return "unknown (other)";
+		}
+	};
+
+	lib::log("enc28j60_nic::run: sillicon revision: %s\r\n",
+			rev_to_str(read_reg(reg::erevid)));
 }
 
 static inline void dump_tsv(uint8_t *tsv) {
@@ -145,15 +142,8 @@ static inline void dump_tsv(uint8_t *tsv) {
 }
 
 async::detached enc28j60_nic::run() {
-	lib::log("enc28j60_nic::run: sillicon revision: %s\r\n",
-			rev_to_str(read_reg(reg::erevid)));
-
-	reg_bit_set(reg::econ1, econ1::rxen);
-
 	uint16_t cur_ptr = rx_start;
 
-	// unlock send coro, second part of hack from line 75
-	send_mutex_.unlock();
 	while (true) {
 		co_await receive_irq_.async_wait();
 		bool was_err = receive_error_.exchange(false);
