@@ -19,7 +19,7 @@ async::result<void> arp_processor::push_packet(
 			r->ip_ = arp.sender_ip;
 			r->mac_ = arp.sender_mac;
 			r->resolved_ = true;
-			r->doorbell_.ring();
+			r->doorbell_.set_value();
 		}
 	}
 
@@ -36,8 +36,7 @@ async::result<mac_addr> arp_processor::mac_of(ipv4_addr ip) {
 		if (r->ip_ != ip)
 			continue;
 
-		if (!r->resolved_)
-			co_await r->doorbell_.async_wait();
+		co_await r->doorbell_.async_get();
 
 		assert(r->resolved_);
 		co_return r->mac_;
@@ -47,9 +46,7 @@ async::result<mac_addr> arp_processor::mac_of(ipv4_addr ip) {
 	auto r = *routes_.push_back(new route{ip, {}, false, {}, {}});
 
 	co_await submit_query_for(ip);
-
-	if (!r->resolved_)
-		co_await r->doorbell_.async_wait();
+	co_await r->doorbell_.async_get();
 
 	assert(r->resolved_);
 	co_return r->mac_;

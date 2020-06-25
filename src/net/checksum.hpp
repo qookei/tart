@@ -16,13 +16,15 @@ namespace net {
 		void update(const void *buf, size_t size) {
 			auto b = static_cast<const uint8_t *>(buf);
 
-			if (size & 1)
-				update(b[--size] << 8);
+			if (size & 1) {
+				size--;
+				update(uint16_t(b[size]) << 8);
+			}
 
-			auto end = b + size;
-			while (b < end) {
-				update((b[0] << 8) | b[1]);
-				b += 2;
+			size_t i = 0;
+			while (i < size) {
+				update((uint16_t(b[i]) << 8) | b[i + 1]);
+				i += 2;
 			}
 		}
 

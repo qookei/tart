@@ -23,5 +23,9 @@ extern "C" {
 		return memcpy(dest, src, size);
 	}
 
+	[[gnu::used]] void *__aeabi_memcpy4(void *dest, const void *src, size_t size) {
+		return memcpy(dest, src, size);
+	}
+
 }
 #endif

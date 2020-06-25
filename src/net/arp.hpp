@@ -86,7 +86,7 @@ namespace net {
 		ipv4_addr ip_;
 		mac_addr mac_;
 		bool resolved_;
-		async::doorbell doorbell_;
+		async::promise<void> doorbell_;
 
 		bool operator==(const route &other) const {
 			return ip_ == other.ip_ && mac_ == other.mac_;
