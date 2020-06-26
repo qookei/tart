@@ -29,6 +29,12 @@ async::result<void> tcp_processor::push_packet(mem::buffer &&b, ipv4_frame &&f) 
 		if (tcp.dest_port != s->in_port_)
 			continue;
 
+		// this socket has an on-going connection already
+		if (s->state_ != tcp_socket::socket_state::want_syn
+				&& s->state_ != tcp_socket::socket_state::want_syn_ack
+				&& s->out_port_ != tcp.src_port)
+			continue;
+
 		co_await s->process_packet(tcp, std::move(b));
 		break;
 	}
@@ -105,9 +111,11 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 			in_seq_ = tcp.seq_num + tcp.payload_size;
 			co_await send_ack();
 
-			mem::buffer b{tcp.payload_size};
-			memcpy(b.data(), tcp.payload, tcp.payload_size);
-			recv_queue_.emplace(std::move(b));
+			if (tcp.payload_size) {
+				mem::buffer b{tcp.payload_size};
+				memcpy(b.data(), tcp.payload, tcp.payload_size);
+				recv_queue_.emplace(std::move(b));
+			}
 		}
 	}
 

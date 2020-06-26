@@ -178,7 +178,8 @@ namespace net {
 			tcp_socket(tcp_processor *parent, uint16_t in_port,
 					uint16_t out_port, ipv4_addr ip, socket_state state)
 			: parent_{parent}, in_port_{in_port}, out_port_{out_port},
-				ip_{ip}, state_{state}, local_window_{0xFFFF},
+				ip_{ip}, state_{state}, out_seq_{0},
+				local_window_{0xFFFF},
 				recv_queue_{mem::get_allocator()} { }
 
 			tcp_processor *parent_;
