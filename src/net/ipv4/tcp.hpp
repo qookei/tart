@@ -2,6 +2,7 @@
 
 #include <async/result.hpp>
 #include <net/dispatch.hpp>
+#include <async/mutex.hpp>
 #include <lib/logger.hpp>
 #include <net/ipv4.hpp>
 #include <net/arp.hpp>
@@ -145,7 +146,7 @@ namespace net {
 			async::result<mem::buffer> recv();
 			async::result<void> send(void *buf, size_t size);
 
-			void close();
+			async::result<void> close();
 
 			ipv4_addr ip() const {
 				return ip_;
@@ -157,6 +158,11 @@ namespace net {
 
 			uint16_t in_port() const {
 				return in_port_;
+			}
+
+			bool connected() {
+				return state_ == socket_state::want_ack
+					|| state_ == socket_state::connected;
 			}
 		private:
 			enum class socket_state {
@@ -180,6 +186,7 @@ namespace net {
 			uint16_t in_port_;
 			uint16_t out_port_;
 			ipv4_addr ip_;
+			mac_addr peer_mac_;
 
 			socket_state state_, next_state_;
 
@@ -192,14 +199,16 @@ namespace net {
 			uint16_t local_window_;
 
 			async::result<void> process_packet(tcp_frame tcp, mem::buffer &&b);
-			async::result<void> send_syn_ack(mac_addr m);
-			async::result<void> send_ack(mac_addr m);
-			async::result<void> send_fin_ack(mac_addr m);
-			async::result<void> send_syn(mac_addr m);
+			async::result<void> send_syn_ack();
+			async::result<void> send_ack();
+			async::result<void> send_fin_ack();
+			async::result<void> send_syn();
 
 			async::doorbell notify_;
+			async::doorbell closed_;
 
 			async::queue<mem::buffer, mem::allocator> recv_queue_;
+			async::mutex send_mutex_;
 
 			frg::default_list_hook<tcp_socket> node_;
 		};

@@ -50,11 +50,12 @@ struct service {
 				sock->ip()[0], sock->ip()[1],
 				sock->ip()[2], sock->ip()[3],
 				sock->in_port(), sock->out_port());
-		while (true) {
-			auto b = co_await sock->recv();
-			lib::log("tart: received '%.*s'\r\n", b.size() - 1, b.data());
-			co_await sock->send(b.data(), b.size());
-		}
+		//while (true) {
+		auto b = co_await sock->recv();
+		lib::log("tart: received '%.*s'\r\n", b.size() - 1, b.data());
+		co_await sock->send(b.data(), b.size());
+		co_await sock->close();
+		//}
 	}
 
 private:
