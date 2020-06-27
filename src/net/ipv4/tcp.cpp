@@ -107,7 +107,7 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 			next_state_ = socket_state::closed;
 			state_ = socket_state::want_ack;
 			co_await send_fin_ack();
-		} else if (in_seq_ >= tcp.seq_num) {
+		} else if (in_seq_ <= tcp.seq_num) {
 			in_seq_ = tcp.seq_num + tcp.payload_size;
 			co_await send_ack();
 
