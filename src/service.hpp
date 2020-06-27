@@ -73,7 +73,11 @@ private:
 				sock->in_port(), sock->out_port());
 
 		while (sock->connected()) {
-			auto b = co_await sock->recv();
+			auto packet = co_await sock->recv();
+			if (!packet)
+				continue;
+
+			auto b = std::move(*packet);
 
 			frg::string_view req{static_cast<char *>(b.data()), b.size()};
 			size_t newl = req.find_first('\n');
@@ -93,7 +97,7 @@ private:
 			frg::string_view resp;
 			if (type != "GET")
 				resp = "HTTP/1.1 400 Bad request\nServer: tart\nContent-Type: text/html\nContent-Length: 20\n\nBad request ...what?";
-			if (path == "/" || path == "/index.html")
+			else if (path == "/" || path == "/index.html")
 				resp = "HTTP/1.1 200 OK\nServer: tart\nContent-Type: text/html\nContent-Length: 101\n\nHello, world! This web page was served to you from <a href=\"https://github.com/qookei/tart\">tart</a>!";
 			else if (path == "/other.html")
 				resp = "HTTP/1.1 200 OK\nServer: tart\nContent-Type: text/html\nContent-Length: 80\n\nHello, world ...again! This is a different page. <a href=\"index.html\">Go back</a>";
@@ -102,6 +106,12 @@ private:
 
 			co_await sock->send(const_cast<char *>(resp.data()), resp.size());
 		}
+
+		lib::log("tart: %u.%u.%u.%u:%u disconnected\r\n",
+				sock->ip()[0], sock->ip()[1],
+				sock->ip()[2], sock->ip()[3],
+				sock->out_port());
+
 		co_await sock->close();
 	}
 };

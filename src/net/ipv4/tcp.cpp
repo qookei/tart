@@ -73,8 +73,10 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 		if (state_ == socket_state::connected)
 			notify_.ring();
 
-		if (state_ == socket_state::closed)
+		if (state_ == socket_state::closed) {
 			closed_.ring();
+			cancel_closed_.cancel();
+		}
 
 		co_return;
 	}
@@ -161,11 +163,14 @@ async::result<void> tcp_processor::tcp_socket::send_fin_ack() {
 	co_await parent_->sender_->send_packet(std::move(packet));
 }
 
-async::result<mem::buffer> tcp_processor::tcp_socket::recv() {
-	co_return std::move(*co_await recv_queue_.async_get());
+async::result<frg::optional<mem::buffer>> tcp_processor::tcp_socket::recv() {
+	co_return co_await recv_queue_.async_get(cancel_closed_token_);
 }
 
-async::result<void> tcp_processor::tcp_socket::send(void *buf, size_t size) {
+async::result<bool> tcp_processor::tcp_socket::send(void *buf, size_t size) {
+	if (cancel_closed_token_.is_cancellation_requested())
+		co_return false;
+
 	assert(state_ == socket_state::connected);
 	co_await send_mutex_.async_lock();
 
@@ -185,9 +190,13 @@ async::result<void> tcp_processor::tcp_socket::send(void *buf, size_t size) {
 	co_await parent_->sender_->send_packet(std::move(packet));
 
 	send_mutex_.unlock();
+
+	co_return true;
 }
 
 async::result<void> tcp_processor::tcp_socket::close() {
+	cancel_closed_.cancel();
+
 	if (state_ == socket_state::connected || (state_ == socket_state::want_ack
 				&& next_state_ == socket_state::connected)) {
 		// TODO: send fin ack, wait for fin ack, send ack...

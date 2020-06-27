@@ -143,8 +143,8 @@ namespace net {
 		struct tcp_socket {
 			friend tcp_processor;
 
-			async::result<mem::buffer> recv();
-			async::result<void> send(void *buf, size_t size);
+			async::result<frg::optional<mem::buffer>> recv();
+			async::result<bool> send(void *buf, size_t size);
 
 			async::result<void> close();
 
@@ -181,7 +181,8 @@ namespace net {
 				ip_{ip}, peer_mac_{}, state_{state}, next_state_{},
 				in_seq_{}, out_seq_{0}, next_out_seq_{}, remote_window_{},
 				local_window_{0xFFFF}, notify_{}, closed_{},
-				recv_queue_{mem::get_allocator()}, send_mutex_{}, node_{} { }
+				recv_queue_{mem::get_allocator()}, send_mutex_{},
+				cancel_closed_{}, cancel_closed_token_{cancel_closed_}, node_{} { }
 
 			tcp_processor *parent_;
 
@@ -211,6 +212,8 @@ namespace net {
 
 			async::queue<mem::buffer, mem::allocator> recv_queue_;
 			async::mutex send_mutex_;
+			async::cancellation_event cancel_closed_;
+			async::cancellation_token cancel_closed_token_;
 
 			frg::default_list_hook<tcp_socket> node_;
 		};
