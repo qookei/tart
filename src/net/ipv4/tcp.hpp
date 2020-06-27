@@ -27,7 +27,7 @@ namespace net {
 		uint8_t data_offset;
 		uint16_t window_size;
 
-		void *payload;
+		const void *payload;
 		size_t payload_size;
 
 		ipv4_frame f;
@@ -144,7 +144,7 @@ namespace net {
 			friend tcp_processor;
 
 			async::result<frg::optional<mem::buffer>> recv();
-			async::result<bool> send(void *buf, size_t size);
+			async::result<bool> send(const void *buf, size_t size);
 
 			async::result<void> close();
 

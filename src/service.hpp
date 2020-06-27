@@ -104,7 +104,7 @@ private:
 			else
 				resp = "HTTP/1.1 404 File not found\nServer: tart\nContent-Type: text/html\nContent-Length: 38\n\nI don't know what you're asking for...";
 
-			co_await sock->send(const_cast<char *>(resp.data()), resp.size());
+			co_await sock->send(resp.data(), resp.size());
 		}
 
 		lib::log("tart: %u.%u.%u.%u:%u disconnected\r\n",

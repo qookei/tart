@@ -169,7 +169,7 @@ async::result<frg::optional<mem::buffer>> tcp_processor::tcp_socket::recv() {
 	co_return co_await recv_queue_.async_get(cancel_closed_token_);
 }
 
-async::result<bool> tcp_processor::tcp_socket::send(void *buf, size_t size) {
+async::result<bool> tcp_processor::tcp_socket::send(const void *buf, size_t size) {
 	if (cancel_closed_token_.is_cancellation_requested())
 		co_return false;
 
