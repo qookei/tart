@@ -131,33 +131,35 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 }
 
 async::result<void> tcp_processor::tcp_socket::send_syn_ack() {
+	auto ipv4 = ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}};
+
 	auto packet = build_packet(
 		ethernet_frame{parent_->sender_->mac(), peer_mac_, ethernet_frame::ipv4_type, nullptr, 0},
-		ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}},
-		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, true, false, false, true, 5, local_window_,
-			nullptr, 0, {parent_->sender_->ip(), ip_}}
+		ipv4,
+		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, true, false, false, true, 5, local_window_, nullptr, 0, ipv4}
 	);
 
 	co_await parent_->sender_->send_packet(std::move(packet));
 }
 
 async::result<void> tcp_processor::tcp_socket::send_ack() {
+	auto ipv4 = ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}};
+
 	auto packet = build_packet(
 		ethernet_frame{parent_->sender_->mac(), peer_mac_, ethernet_frame::ipv4_type, nullptr, 0},
-		ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}},
-		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, false, false, false, true, 5, local_window_,
-			nullptr, 0, {parent_->sender_->ip(), ip_}}
+		ipv4,
+		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, false, false, false, true, 5, local_window_, nullptr, 0, ipv4}
 	);
 
 	co_await parent_->sender_->send_packet(std::move(packet));
 }
 
 async::result<void> tcp_processor::tcp_socket::send_fin_ack() {
+	auto ipv4 = ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}};
 	auto packet = build_packet(
 		ethernet_frame{parent_->sender_->mac(), peer_mac_, ethernet_frame::ipv4_type, nullptr, 0},
-		ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}},
-		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, true, false, false, false, true, 5, local_window_,
-			nullptr, 0, {parent_->sender_->ip(), ip_}}
+		ipv4,
+		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, true, false, false, false, true, 5, local_window_, nullptr, 0, ipv4}
 	);
 
 	co_await parent_->sender_->send_packet(std::move(packet));
@@ -174,11 +176,12 @@ async::result<bool> tcp_processor::tcp_socket::send(void *buf, size_t size) {
 	assert(state_ == socket_state::connected);
 	co_await send_mutex_.async_lock();
 
+	auto ipv4 = ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}};
+
 	auto packet = build_packet(
 		ethernet_frame{parent_->sender_->mac(), peer_mac_, ethernet_frame::ipv4_type, nullptr, 0},
-		ipv4_frame{parent_->sender_->ip(), ip_, ipv4_frame::tcp_proto, 64, 0, 5, nullptr, 0, {}},
-		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, false, false, true, true, 5, local_window_,
-			buf, size, {parent_->sender_->ip(), ip_}}
+		ipv4,
+		tcp_frame{in_port_, out_port_, 0, out_seq_, in_seq_, false, false, false, true, true, 5, local_window_, buf, size, ipv4}
 	);
 
 	out_seq_ += size;
