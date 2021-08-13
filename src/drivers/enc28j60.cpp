@@ -227,7 +227,7 @@ async::result<void> enc28j60_nic::send_packet(mem::buffer &&buffer) {
 	// pad buffer out with zeroes
 	if (buffer.size() < padding) {
 		size_t size = padding - buffer.size();
-		uint8_t zeroes[size];
+		uint8_t zeroes[padding];
 		memset(zeroes, 0, size);
 		write_buffer(zeroes, 0, size);
 	}
