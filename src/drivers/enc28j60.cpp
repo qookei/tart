@@ -269,7 +269,7 @@ bool enc28j60_nic::do_poll() {
 	uint8_t epktcnt = read_reg(reg::epktcnt);
 
 	if (epktcnt || (eir & eir::pktif) || (eir & eir::rxerif)) {
-		receive_irq_.ring();
+		receive_irq_.raise();
 		receive_error_ = eir & eir::rxerif;
 
 		if (eir & eir::rxerif)
@@ -277,7 +277,7 @@ bool enc28j60_nic::do_poll() {
 	}
 
 	if ((eir & eir::txif) || (eir & eir::txerif)) {
-		transmit_irq_.ring();
+		transmit_irq_.raise();
 		transmit_error_ = eir & eir::txerif;
 
 		if (eir & eir::txif)
@@ -287,7 +287,7 @@ bool enc28j60_nic::do_poll() {
 	}
 
 	if (eir & eir::linkif)
-		link_irq_.ring();
+		link_irq_.raise();
 
 	return epktcnt || eir;
 }

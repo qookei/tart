@@ -1,6 +1,7 @@
 #include "logger.hpp"
 #include <stdarg.h>
 
+#include <frg/printf.hpp>
 #include <frg/formatting.hpp>
 #include <frg/utility.hpp>
 
@@ -30,15 +31,17 @@ void vlog(const char *fmt, va_list va) {
 				platform::usart::send(1, *s++);
 		}
 
-		void operator()(char c) {
+		frg::expected<frg::format_error> operator()(char c) {
 			platform::usart::send(1, c);
+			return {};
 		}
 
-		void operator()(const char *s, size_t n) {
+		frg::expected<frg::format_error> operator()(const char *s, size_t n) {
 			platform::usart::send(1, s, n);
+			return {};
 		}
 
-		void operator()(char t, frg::format_options opts, frg::printf_size_mod szmod) {
+		frg::expected<frg::format_error> operator()(char t, frg::format_options opts, frg::printf_size_mod szmod) {
 			switch(t) {
 				case 'p': case 'c': case 's':
 					frg::do_printf_chars(*this, t, opts, szmod, _vsp);
@@ -50,10 +53,12 @@ void vlog(const char *fmt, va_list va) {
 					frg::do_printf_floats(*this, t, opts, szmod, _vsp);
 					break;
 			}
+
+			return {};
 		}
 	} usart_formatter{&vs};
 
-	frg::printf_format(usart_formatter, fmt, &vs);
+	frg::printf_format(usart_formatter, fmt, &vs).unwrap();
 }
 
 } // namespace anonymous

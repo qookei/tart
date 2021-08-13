@@ -4,7 +4,7 @@
 #include <net/dispatch.hpp>
 #include <net/address.hpp>
 #include <async/result.hpp>
-#include <async/doorbell.hpp>
+#include <async/recurring-event.hpp>
 #include <async/queue.hpp>
 #include <async/mutex.hpp>
 #include <async/service.hpp>
@@ -49,13 +49,13 @@ namespace drivers {
 		async::queue<mem::buffer, mem::allocator> send_queue_;
 		async::queue<mem::buffer, mem::allocator> recv_queue_;
 
-		async::doorbell transmit_irq_;
+		async::recurring_event transmit_irq_;
 		std::atomic_bool transmit_error_;
 
-		async::doorbell receive_irq_;
+		async::recurring_event receive_irq_;
 		std::atomic_bool receive_error_;
 
-		async::doorbell link_irq_;
+		async::recurring_event link_irq_;
 
 		net::mac_addr mac_;
 	};

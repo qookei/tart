@@ -1,5 +1,6 @@
 #pragma once
 
+#include <async/recurring-event.hpp>
 #include <async/result.hpp>
 #include <net/dispatch.hpp>
 #include <async/mutex.hpp>
@@ -207,8 +208,8 @@ namespace net {
 			async::result<void> send_fin_ack();
 			async::result<void> send_syn();
 
-			async::doorbell notify_;
-			async::doorbell closed_;
+			async::recurring_event notify_;
+			async::recurring_event closed_;
 
 			async::queue<mem::buffer, mem::allocator> recv_queue_;
 			async::mutex send_mutex_;

@@ -12,15 +12,18 @@
 
 #include <net/ether.hpp>
 
-#include <concepts>
+//#include <concepts>
 #include <net/address.hpp>
 
 #include <net/port.hpp>
 
+template <typename A, typename B>
+concept same_as = std::is_same_v<A, B> && std::is_same_v<B, A>;
+
 namespace net {
 	template <typename Awaiter, typename T>
 	concept awaits_to = requires (Awaiter &&a) {
-		{ operator co_await(std::move(a)).await_resume() } -> std::same_as<T>;
+		{ operator co_await(std::move(a)).await_resume() } -> same_as<T>;
 	};
 
 	struct sender {
@@ -37,17 +40,17 @@ namespace net {
 			typename T::from_frame_type &&f,
 			const typename T::from_frame_type &f2, sender *s) {
 		typename T::from_frame_type;
-		{ a.attach_sender(s) } -> std::same_as<void>;
+		{ a.attach_sender(s) } -> same_as<void>;
 		{ a.push_packet(std::move(b), std::move(f)) } -> awaits_to<void>;
-		{ a.matches(f2) } -> std::same_as<bool>;
+		{ a.matches(f2) } -> same_as<bool>;
 	};
 
 	template <typename T>
 	concept nic = requires (T a, mem::buffer &&b) {
 		{ a.recv_packet() } -> awaits_to<mem::buffer>;
 		{ a.send_packet(std::move(b)) } -> awaits_to<void>;
-		{ a.mac() } -> std::same_as<mac_addr>;
-		{ a.run() } -> std::same_as<async::detached>;
+		{ a.mac() } -> same_as<mac_addr>;
+		{ a.run() } -> same_as<async::detached>;
 	};
 
 	template <typename From>
@@ -73,7 +76,7 @@ namespace net {
 	}
 
 	template <nic Nic, processor ...Ts>
-		requires (std::same_as<typename Ts::from_frame_type, ethernet_frame> && ...)
+		requires (same_as<typename Ts::from_frame_type, ethernet_frame> && ...)
 	struct ether_dispatcher : public sender {
 		ether_dispatcher(Nic &nic)
 		: nic_{&nic}, processors_{}, pa_{} {

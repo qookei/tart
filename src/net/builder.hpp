@@ -3,7 +3,6 @@
 #include <mem/buffer.hpp>
 #include <frg/tuple.hpp>
 #include <type_traits>
-#include <concepts>
 
 namespace net {
 
@@ -23,7 +22,7 @@ namespace net {
 
 	template <typename T>
 	concept requires_checksum = requires (T a, void *b, ptrdiff_t c, size_t d) {
-		{ a.do_checksum(b, c, d) } -> std::same_as<void>;
+		{ a.do_checksum(b, c, d) } -> same_as<void>;
 	};
 
 	template <typename ...Args>

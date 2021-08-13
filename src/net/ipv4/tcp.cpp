@@ -71,10 +71,10 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 		next_state_ = socket_state::none;
 
 		if (state_ == socket_state::connected)
-			notify_.ring();
+			notify_.raise();
 
 		if (state_ == socket_state::closed) {
-			closed_.ring();
+			closed_.raise();
 			cancel_closed_.cancel();
 		}
 
@@ -126,7 +126,7 @@ async::result<void> tcp_processor::tcp_socket::process_packet(tcp_frame tcp, mem
 		out_seq_++;
 		co_await send_ack();
 		state_ = socket_state::closed;
-		closed_.ring();
+		closed_.raise();
 	}
 }
 

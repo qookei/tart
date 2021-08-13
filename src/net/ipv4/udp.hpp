@@ -1,5 +1,6 @@
 #pragma once
 
+#include <async/recurring-event.hpp>
 #include <async/result.hpp>
 #include <net/dispatch.hpp>
 #include <lib/logger.hpp>
@@ -107,7 +108,7 @@ namespace net {
 
 			bool listening_;
 
-			async::doorbell notify_;
+			async::recurring_event notify_;
 
 			async::queue<mem::buffer, mem::allocator> recv_queue_;
 

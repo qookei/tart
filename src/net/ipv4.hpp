@@ -98,7 +98,7 @@ namespace net {
 	};
 
 	template <processor ...Ts>
-		requires (std::same_as<typename Ts::from_frame_type, ipv4_frame> && ...)
+		requires (same_as<typename Ts::from_frame_type, ipv4_frame> && ...)
 	struct ipv4_processor {
 		using from_frame_type = ethernet_frame;
 

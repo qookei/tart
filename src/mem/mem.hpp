@@ -7,6 +7,7 @@
 namespace mem {
 
 struct bump_policy {
+	static constexpr size_t sb_size = 2048;
 	static constexpr size_t slabsize = 2048;
 	static constexpr size_t pagesize = 512;
 	static constexpr size_t num_buckets = 8;

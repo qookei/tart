@@ -14,7 +14,7 @@ async::result<void> udp_processor::push_packet(mem::buffer &&b, ipv4_frame &&f) 
 			s->listening_ = false;
 			s->out_port_ = udp.src_port;
 			s->ip_ = f.source;
-			s->notify_.ring();
+			s->notify_.raise();
 		}
 
 		if (f.source == s->ip_) {

@@ -5,7 +5,6 @@
 #include <net/ether.hpp>
 #include <net/address.hpp>
 #include <net/dispatch.hpp>
-#include <async/doorbell.hpp>
 
 namespace net {
 	struct arp_frame {
