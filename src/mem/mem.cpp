@@ -1,12 +1,12 @@
 #include "mem.hpp"
 #include <lib/logger.hpp>
 
-extern "C" int _bss_end;
+extern "C" int __image_ram_end;
 
 namespace mem {
 
 bump_policy::bump_policy()
-:top_((reinterpret_cast<uintptr_t>(&_bss_end) + pagesize - 1)
+:top_((reinterpret_cast<uintptr_t>(&__image_ram_end) + pagesize - 1)
 		& ~(pagesize - 1)) {}
 
 uintptr_t bump_policy::map(size_t s, size_t alignment) {

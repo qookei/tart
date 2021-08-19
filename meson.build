@@ -1,10 +1,10 @@
 project('tart', 'cpp',
 	version: '0.1',
 	default_options: [
-		'warning_level=2',
-		'b_lto=true',
+		'warning_level=3',
+		#		'b_lto=true',
 		'buildtype=minsize',
-		'cpp_std=c++2a'])
+		'cpp_std=c++20'])
 
 objcopy = find_program('objcopy')
 size = find_program('size')
@@ -16,7 +16,7 @@ subdir('src/platform')
 
 cpp_args = ['-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
 		'-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer']
-link_args = ['-T', this_platform_ld, '-T', platform_ld, '-lgcc']
+link_args = ['-T', this_platform_ld, '-T', main_platform_ld, '-lgcc']
 
 if meson.get_compiler('cpp').has_argument('-fcoroutines')
 	cpp_args += ['-fcoroutines']
@@ -75,12 +75,12 @@ sources = [
 		'src/lib/string.cpp',
 		'src/lib/logger.cpp',
 		'src/mem/mem.cpp',
-		'src/drivers/w25x.cpp',
-		'src/drivers/enc28j60.cpp',
+		#		'src/drivers/w25x.cpp',
+		#		'src/drivers/enc28j60.cpp',
 		'src/net/arp.cpp',
-		'src/net/ipv4/icmp.cpp',
-		'src/net/ipv4/udp.cpp',
-		'src/net/ipv4/tcp.cpp',
+		#		'src/net/ipv4/icmp.cpp',
+		#		'src/net/ipv4/udp.cpp',
+		#		'src/net/ipv4/tcp.cpp',
 		'src/service.cpp',
 		'src/cxx-support.cpp'
 	)
@@ -91,7 +91,7 @@ elf = executable('tart.elf', sources,
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
 		cpp_args: cpp_args,
 		link_args: link_args,
-		link_depends: [files(platform_ld, this_platform_ld)])
+		link_depends: [files(main_platform_ld, this_platform_ld)])
 
 bin = custom_target('tart.bin',
 		input: elf, output: 'tart.bin',

@@ -6,28 +6,30 @@
 #include <stddef.h>
 
 struct vector_table {
+	using fn = void (*)();
+
 	void *stack;
-	void (*reset)();
-	void (*nmi)();
-	void (*hard_fault)();
-	void (*mm_fault)();
-	void (*bus_fault)();
-	void (*usage_fault)();
+	fn reset;
+	fn nmi;
+	fn hard_fault;
+	fn mm_fault;
+	fn bus_fault;
+	fn usage_fault;
 	uintptr_t reserved1[4];
-	void (*sv_call)();
+	fn sv_call;
 	uintptr_t reserved2;
-	void (*pend_sv_call)();
-	void (*systick)();
+	fn pend_sv_call;
+	fn systick;
 
 	// TODO: get irq count and handler pointers from platform
-	void (*irq[68]);
+	fn irq[68];
 };
 
-extern "C" uint32_t _stack;
+extern "C" char core0_stack[];
 
 [[gnu::section(".vectors"), gnu::used]]
-vector_table _vec = {
-	.stack = &_stack,
+vector_table vec_ = {
+	.stack = core0_stack,
 	.reset = platform::entry,
 	.nmi = platform::nmi,
 	.hard_fault = platform::hard_fault,
@@ -40,8 +42,8 @@ vector_table _vec = {
 };
 
 extern "C" void (*__init_array_start)(), (*__init_array_end)();
-extern "C" uint32_t _data_start, _data_end, _data_loadaddr;
-extern "C" uint32_t _bss_start, _bss_end;
+extern "C" uint32_t __data_start, __data_end, __data_loadaddr;
+extern "C" uint32_t __bss_start, __bss_end;
 
 extern "C" void reset_handler() {
 	platform::entry();
@@ -52,8 +54,8 @@ namespace service {
 } // namespace service
 
 void platform::entry() {
-	memcpy(&_data_start, &_data_loadaddr, static_cast<size_t>(&_data_end - &_data_start));
-	memset(&_bss_start, 0, static_cast<size_t>(&_bss_end - &_bss_start));
+	memcpy(&__data_start, &__data_loadaddr, static_cast<size_t>(&__data_end - &__data_start));
+	memset(&__bss_start, 0, static_cast<size_t>(&__bss_end - &__bss_start));
 
 	for (auto ctor = &__init_array_start; ctor < &__init_array_end; ctor++) {
 		(*ctor)();

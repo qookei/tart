@@ -1,7 +1,11 @@
 EXTERN (vector_table)
-ENTRY(reset_handler)
+ENTRY (reset_handler)
 
 SECTIONS {
+	.pre : {
+		KEEP (*(.pre))
+	} >rom
+
 	.text : {
 		*(.vectors*)
 		*(.text*)
@@ -19,22 +23,20 @@ SECTIONS {
 	} >rom
 
 	. = ALIGN(4);
-	_etext = .;
-
 	.data : {
-		_data_start = .;
+		__data_start = .;
 		*(.data*)
+		__data_end = .;
 		. = ALIGN(4);
-		_data_end = .;
 	} >ram AT >rom
-	_data_loadaddr = LOADADDR(.data);
+	__data_loadaddr = LOADADDR(.data);
 
 	.bss : {
-		_bss_start = .;
+		__bss_start = .;
 		*(.bss*)
 		*(COMMON)
+		__bss_end = .;
 		. = ALIGN(4);
-		_bss_end = .;
 	} >ram
 
 	/DISCARD/ : {
@@ -43,8 +45,8 @@ SECTIONS {
 		*(.ARM.exidx*)
 	}
 
-	. = ALIGN(4);
-	image_end = .;
+	.image_ram_end : {
+		. = ALIGN(4);
+		__image_ram_end = .;
+	} >ram
 }
-
-PROVIDE(_stack = ORIGIN(ram) + LENGTH(ram));

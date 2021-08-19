@@ -1,0 +1,33 @@
+[binaries]
+c = 'arm-none-eabi-gcc'
+cpp = 'arm-none-eabi-g++'
+as = 'arm-none-eabi-as'
+strip = 'arm-none-eabi-strip'
+objcopy = 'arm-none-eabi-objcopy'
+size = 'arm-none-eabi-size'
+
+[built-in options]
+
+cpp_args = [
+	'-ffreestanding',
+	'-mtune=cortex-m0plus',
+	'-msoft-float',
+	'-mthumb',
+	'-fno-common',
+	'-nostdlib',
+	'-mcpu=cortex-m0plus']
+
+cpp_link_args = [
+	'-ffreestanding',
+	'-mtune=cortex-m0plus',
+	'-msoft-float',
+	'-mthumb',
+	'-fno-common',
+	'-mcpu=cortex-m0plus',
+	'-nostdlib']
+
+[host_machine]
+system = 'bare'
+cpu_family = 'arm'
+cpu = 'cortex-m0plus'
+endian = 'little'
