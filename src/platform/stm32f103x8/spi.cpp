@@ -1,8 +1,8 @@
-#include <periph/spi.hpp>
-#include "spi_reg.hpp"
+#include <tart/chip/spi.hpp>
+#include <tart/chip/stm32f103x8/reg/spi.hpp>
 
-#include "rcc.hpp"
-#include <periph/gpio.hpp>
+#include <tart/chip/stm32f103x8/rcc.hpp>
+#include <tart/chip/gpio.hpp>
 
 namespace spi {
 

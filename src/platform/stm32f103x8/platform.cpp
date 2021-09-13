@@ -1,10 +1,10 @@
-#include "../platform.hpp"
-#include "rcc.hpp"
-#include "usart.hpp"
-#include <periph/spi.hpp>
+#include <tart/core/platform.hpp>
+#include <tart/chip/stm32f103x8/rcc.hpp>
+#include <tart/chip/stm32f103x8/usart.hpp>
+#include <tart/chip/spi.hpp>
 
-#include <lib/logger.hpp>
-#include <lib/string.hpp>
+#include <tart/lib/logger.hpp>
+#include <tart/lib/string.hpp>
 
 namespace platform {
 

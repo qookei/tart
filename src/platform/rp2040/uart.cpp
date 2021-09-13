@@ -1,7 +1,7 @@
-#include "uart.hpp"
-#include "uart_reg.hpp"
+#include <tart/chip/rp2040/uart.hpp>
+#include <tart/chip/rp2040/reg/uart.hpp>
 
-#include "resets.hpp"
+#include <tart/chip/rp2040/resets.hpp>
 
 namespace platform::usart {
 

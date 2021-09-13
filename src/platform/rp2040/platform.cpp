@@ -1,11 +1,11 @@
-#include "../platform.hpp"
-#include "uart.hpp"
+#include <tart/core/platform.hpp>
 
-#include "resets.hpp"
-#include "clocks.hpp"
+#include <tart/chip/rp2040/uart.hpp>
+#include <tart/chip/rp2040/resets.hpp>
+#include <tart/chip/rp2040/clocks.hpp>
 
-#include <lib/logger.hpp>
-#include <lib/string.hpp>
+#include <tart/lib/logger.hpp>
+#include <tart/lib/string.hpp>
 
 #include <stdint.h>
 

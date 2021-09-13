@@ -1,8 +1,8 @@
-#include "usart.hpp"
-#include "usart_reg.hpp"
+#include <tart/chip/stm32f103x8/usart.hpp>
+#include <tart/chip/stm32f103x8/reg/usart.hpp>
 
-#include "rcc.hpp"
-#include <periph/gpio.hpp>
+#include <tart/chip/stm32f103x8/rcc.hpp>
+#include <tart/chip/gpio.hpp>
 
 namespace platform::usart {
 

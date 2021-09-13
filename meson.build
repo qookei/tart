@@ -10,7 +10,7 @@ objcopy = find_program('objcopy')
 size = find_program('size')
 
 this_platform = get_option('platform')
-inc = include_directories('src')
+inc = include_directories('include', 'src')
 
 subdir('src/platform')
 
@@ -77,7 +77,7 @@ sources = [
 		'src/mem/mem.cpp',
 		#		'src/drivers/w25x.cpp',
 		#		'src/drivers/enc28j60.cpp',
-		'src/net/arp.cpp',
+		#'src/net/arp.cpp',
 		#		'src/net/ipv4/icmp.cpp',
 		#		'src/net/ipv4/udp.cpp',
 		#		'src/net/ipv4/tcp.cpp',

@@ -1,8 +1,8 @@
-#include <periph/gpio.hpp>
+#include <tart/chip/gpio.hpp>
 
 #include <arch/arm/mem_space.hpp>
-#include "gpio_reg.hpp"
-#include "rcc.hpp"
+#include <tart/chip/stm32f103x8/reg/gpio.hpp>
+#include <tart/chip/stm32f103x8/rcc.hpp>
 
 namespace gpio {
 

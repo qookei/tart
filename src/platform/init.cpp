@@ -1,6 +1,6 @@
-#include "platform.hpp"
+#include <tart/core/platform.hpp>
 
-#include <lib/string.hpp>
+#include <tart/lib/string.hpp>
 
 #include <stdint.h>
 #include <stddef.h>

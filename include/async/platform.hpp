@@ -1,5 +1,5 @@
-#include <lib/utils.hpp>
-#include <lib/logger.hpp>
+#include <tart/lib/utils.hpp>
+#include <tart/lib/logger.hpp>
 
 #define LIBASYNC_THREAD_LOCAL
 
@@ -11,4 +11,4 @@ namespace async::platform {
 		while(1);
 		__builtin_unreachable();
 	}
-}
+} // namespace async::platform

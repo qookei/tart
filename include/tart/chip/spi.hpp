@@ -1,6 +1,6 @@
 #pragma once
 
-#include <periph/gpio.hpp>
+#include <tart/chip/gpio.hpp>
 
 namespace spi {
 	struct spi {

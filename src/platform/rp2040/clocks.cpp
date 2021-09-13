@@ -1,7 +1,7 @@
-#include "clocks.hpp"
-#include "clocks_reg.hpp"
+#include <tart/chip/rp2040/clocks.hpp>
+#include <tart/chip/rp2040/reg/clocks.hpp>
 
-#include "resets.hpp"
+#include <tart/chip/rp2040/resets.hpp>
 
 namespace platform::clocks {
 	inline constexpr uint32_t mhz = 1000000;

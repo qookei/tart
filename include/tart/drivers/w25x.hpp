@@ -1,6 +1,6 @@
 #pragma once
 
-#include <periph/spi.hpp>
+#include <tart/periph/spi.hpp>
 #include <stddef.h>
 
 namespace drivers {

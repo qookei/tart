@@ -1,9 +1,5 @@
 #pragma once
 
-#ifndef ENC28J60_PRIVATE
-#error This header is private to enc28j60.cpp
-#endif
-
 namespace spi_cmd {
 	constexpr uint8_t read_control = 0;
 	constexpr uint8_t read_buffer = 1;

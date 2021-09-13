@@ -1,4 +1,4 @@
-#include "logger.hpp"
+#include <tart/lib/logger.hpp>
 #include <stdarg.h>
 
 #include <frg/printf.hpp>
@@ -6,9 +6,9 @@
 #include <frg/utility.hpp>
 
 // TODO: make a generic usart iface
-#include <platform/stm32f103x8/usart.hpp>
+#include <tart/chip/stm32f103x8/usart.hpp>
 
-#include <platform/stack.hpp>
+#include <tart/core/stack.hpp>
 
 namespace lib {
 

@@ -1,6 +1,6 @@
-#include "rcc.hpp"
-#include "rcc_reg.hpp"
-#include "flash.hpp"
+#include <tart/chip/stm32f103x8/rcc.hpp>
+#include <tart/chip/stm32f103x8/reg/rcc.hpp>
+#include <tart/chip/stm32f103x8/flash.hpp>
 
 namespace platform::rcc {
 

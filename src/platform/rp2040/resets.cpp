@@ -1,5 +1,5 @@
-#include "resets.hpp"
-#include "resets_reg.hpp"
+#include <tart/chip/rp2040/resets.hpp>
+#include <tart/chip/rp2040/reg/resets.hpp>
 
 namespace platform::resets {
 	void reset(periph p) {
