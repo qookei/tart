@@ -1,4 +1,6 @@
-this_platform_ld = meson.current_source_dir() + '/linker.ld'
+ld_path = meson.current_source_dir() + '/linker.ld'
+link_args += ['-T', ld_path]
+link_depends += files(ld_path)
 
 c = find_program('c')
 
@@ -7,7 +9,7 @@ stage1_blob_gen = generator(
 	arguments : [c.full_path(), objcopy.full_path(), '@INPUT@', '@OUTPUT@'],
 	output : 'blob-@BASENAME@.h')
 
-platform_sources += files(
+sources += files(
 	'stage1.cpp',
 	'platform.cpp',
 	'resets.cpp',
@@ -15,4 +17,6 @@ platform_sources += files(
 	'uart.cpp'
 )
 
-platform_sources += stage1_blob_gen.process('stage1/stage1-w25q080.S')
+sources += stage1_blob_gen.process('stage1/stage1-w25q080.S')
+
+cpp_args += '-DTART_CHIP_RP2040'

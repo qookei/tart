@@ -8,7 +8,7 @@
 // TODO: make a generic usart iface
 #include <tart/chip/stm32f103x8/usart.hpp>
 
-#include <tart/core/stack.hpp>
+#include <tart/arch/memory.hpp>
 
 namespace lib {
 
@@ -79,7 +79,7 @@ void log(const char *fmt, ...) {
 	va_end(va);
 
 	size_t n = 0;
-	platform::walk_stack([&n](uintptr_t ptr) {
+	tart::walk_stack([&n](uintptr_t ptr) {
 		lib::log("  #%lu -> %08lx\r\n", n, ptr);
 		n++;
 	});

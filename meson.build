@@ -9,14 +9,19 @@ project('tart', 'cpp',
 objcopy = find_program('objcopy')
 size = find_program('size')
 
-this_platform = get_option('platform')
-inc = include_directories('include', 'src')
+arch = 'user'
+chip = get_option('platform')
 
-subdir('src/platform')
+includes = include_directories('include', 'src')
+sources = []
 
 cpp_args = ['-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
 		'-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer']
-link_args = ['-T', this_platform_ld, '-T', main_platform_ld, '-lgcc']
+link_args = ['-lgcc']
+link_depends = []
+
+subdir('src/chip')
+subdir('src/arch')
 
 if meson.get_compiler('cpp').has_argument('-fcoroutines')
 	cpp_args += ['-fcoroutines']
@@ -69,8 +74,7 @@ endif
 libarch_dep = libarch.get_variable('libarch_dep')
 libasync_inc = include_directories('subprojects/libasync/include')
 
-sources = [
-	platform_sources,
+sources += [
 	files(
 		'src/lib/string.cpp',
 		'src/lib/logger.cpp',
@@ -82,16 +86,17 @@ sources = [
 		#		'src/net/ipv4/udp.cpp',
 		#		'src/net/ipv4/tcp.cpp',
 		'src/service.cpp',
-		'src/cxx-support.cpp'
+		'src/cxx-support.cpp',
+		'src/init.cpp'
 	)
 ]
 
 elf = executable('tart.elf', sources,
-		include_directories: [inc, libasync_inc],
+		include_directories: [includes, libasync_inc],
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
 		cpp_args: cpp_args,
 		link_args: link_args,
-		link_depends: [files(main_platform_ld, this_platform_ld)])
+		link_depends: link_depends)
 
 bin = custom_target('tart.bin',
 		input: elf, output: 'tart.bin',

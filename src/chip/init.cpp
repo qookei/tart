@@ -1,4 +1,4 @@
-#include <tart/core/platform.hpp>
+#include <tart/arch/platform.hpp>
 
 #include <tart/lib/string.hpp>
 
