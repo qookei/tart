@@ -1,12 +1,11 @@
 #include <tart/arch/init.hpp>
-#include <tart/arch/platform.hpp>
-
-#include <tart/lib/string.hpp>
 
 #include <stdint.h>
 #include <stddef.h>
 
 #include <frg/array.hpp>
+
+#include "handlers.hpp"
 
 using vec_fn = void (*)();
 
@@ -35,7 +34,8 @@ template <void (*Fn)(void *)>
 }
 
 template <size_t N>
-void irq_handler(void *) {
+void irq_handler(void *ctx) {
+	tart::handle_irq(ctx, N);
 }
 
 template <size_t N>
@@ -47,20 +47,18 @@ frg::array<vec_fn, N> make_irq_handlers() {
 
 extern "C" char core0_stack[];
 
-void fatal(void *) {}
-
 [[gnu::section(".vectors"), gnu::used]]
-vector_table vec_ = {
+vector_table tart_vector_table__ = {
 	.stack = core0_stack,
 	.reset = reset_handler,
-	.nmi = &vector_fn<fatal>,
-	.hard_fault = &vector_fn<fatal>,
-	.mm_fault = &vector_fn<fatal>,
-	.bus_fault = &vector_fn<fatal>,
-	.usage_fault = &vector_fn<fatal>,
-	.sv_call = &vector_fn<fatal>,
-	.pend_sv_call = &vector_fn<fatal>,
-	.systick = &vector_fn<fatal>,
+	.nmi = &vector_fn<tart::nmi>,
+	.hard_fault = &vector_fn<tart::hard_fault>,
+	.mm_fault = &vector_fn<tart::mm_fault>,
+	.bus_fault = &vector_fn<tart::bus_fault>,
+	.usage_fault = &vector_fn<tart::usage_fault>,
+	.sv_call = &vector_fn<tart::sv_call>,
+	.pend_sv_call = &vector_fn<tart::pend_sv_call>,
+	.systick = &vector_fn<tart::systick>,
 
 	.irqs = make_irq_handlers<68>()
 };

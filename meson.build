@@ -85,7 +85,6 @@ sources += [
 		#		'src/net/ipv4/icmp.cpp',
 		#		'src/net/ipv4/udp.cpp',
 		#		'src/net/ipv4/tcp.cpp',
-		'src/service.cpp',
 		'src/cxx-support.cpp',
 		'src/init.cpp'
 	)
