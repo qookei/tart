@@ -2,6 +2,7 @@
 #include <tart/arch/init.hpp>
 
 #include <tart/lib/string.hpp>
+#include <tart/lib/logger.hpp>
 
 #include <stdint.h>
 #include <stddef.h>
@@ -25,6 +26,8 @@ extern "C" void reset_handler() {
 	for (auto ctor = &__init_array_start; ctor < &__init_array_end; ctor++) {
 		(*ctor)();
 	}
+
+	lib::log("tart: %lu global constructor(s) executed\r\n", &__init_array_end - &__init_array_start);
 
 	late_init();
 	lib_main();

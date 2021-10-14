@@ -1,68 +1,51 @@
+
 #include <tart/mem/mem.hpp>
 #include <tart/lib/logger.hpp>
 
-extern "C" int __image_ram_end;
+#include <frg/manual_box.hpp>
 
-namespace mem {
+#include <tart/chip/memory.hpp>
 
-bump_policy::bump_policy()
-:top_((reinterpret_cast<uintptr_t>(&__image_ram_end) + pagesize - 1)
-		& ~(pagesize - 1)) {}
+namespace tart {
 
-uintptr_t bump_policy::map(size_t s, size_t alignment) {
-	uintptr_t sp;
-	uintptr_t p = (top_ = (top_ + alignment - 1) & ~(alignment - 1));
+uintptr_t bump_policy::map(size_t size, size_t align) {
+	top_ = (top_ + align - 1) & ~(align - 1);
+	auto ptr = top_;
 
-	asm volatile ("mov %[v], sp" : [v] "=r" (sp) : : "memory");
+	top_ += size;
 
-	top_ += s;
-
-	if (p + s > sp) {
-		lib::panic("bump_policy::map: agh, the heap is trampling over our stack, bailing out\r\n");
+	if (ptr + size > end_) {
+		lib::panic("tart: out of memory, tried to allocate %lu bytes with %lu alignment\r\n", size, align);
 	}
 
-	memset(reinterpret_cast<void *>(p), 0, s);
-	return p;
+	memset(reinterpret_cast<void *>(ptr), 0, size);
+	return ptr;
 }
 
 void bump_policy::unmap(uintptr_t, size_t) {
-	lib::panic("bump_policy::unmap: stub unmap called\r\n");
+	lib::panic("tart: bump_policy::unmap is unimplemented\r\n");
 }
 
 // --------------------------------------------------------------------
 
 namespace {
-	bump_policy this_policy_;
-	frg::slab_pool<bump_policy, lib::noop_lock> this_pool_{this_policy_};
-	frg::slab_allocator this_allocator_{&this_pool_};
+	frg::manual_box<bump_policy> policy_;
+	frg::manual_box<frg::slab_pool<bump_policy, lib::noop_lock>> pool_;
+	frg::manual_box<allocator> alloc_;
 }
 
-frg::slab_allocator<bump_policy, lib::noop_lock> &get_allocator() {
-	return this_allocator_;
+allocator &alloc() {
+	return *alloc_;
 }
 
-} // namespace mem
+void init_alloc() {
+	auto [start, end] = chip::get_heap_area();
 
-void *operator new(size_t size){
-	return mem::this_allocator_.allocate(size);
+	lib::log("tart: initializing heap 0x%08x-0x%08x\r\n", start, end);
+
+	policy_.initialize(start, end);
+	pool_.initialize(*policy_);
+	alloc_.initialize(pool_.get());
 }
 
-void *operator new[](size_t size){
-	return mem::this_allocator_.allocate(size);
-}
-
-void operator delete(void *p){
-	mem::this_allocator_.free(p);
-}
-
-void operator delete[](void *p){
-	mem::this_allocator_.free(p);
-}
-
-void operator delete(void *p, size_t size){
-	mem::this_allocator_.deallocate(p, size);
-}
-
-void operator delete[](void *p, size_t size){
-	mem::this_allocator_.deallocate(p, size);
-}
+} // namespace tart

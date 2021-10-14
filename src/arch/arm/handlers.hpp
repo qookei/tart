@@ -12,6 +12,5 @@ void usage_fault(void *ctx);
 void sv_call(void *ctx);
 void pend_sv_call(void *ctx);
 void systick(void *ctx);
-void handle_irq(void *ctx, size_t irq);
 
 } // namespace tart

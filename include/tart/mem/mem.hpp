@@ -1,10 +1,9 @@
 #pragma once
 
-#include <new>
 #include <frg/slab.hpp>
 #include <tart/lib/utils.hpp>
 
-namespace mem {
+namespace tart {
 
 struct bump_policy {
 	static constexpr size_t sb_size = 2048;
@@ -12,17 +11,21 @@ struct bump_policy {
 	static constexpr size_t pagesize = 512;
 	static constexpr size_t num_buckets = 8;
 
-	bump_policy();
+	bump_policy(uintptr_t start, uintptr_t end)
+	: top_{start}, end_{end} { }
 
-	uintptr_t map(size_t s, size_t alignment);
+	uintptr_t map(size_t size, size_t align);
 	void unmap(uintptr_t, size_t);
 
 private:
 	uintptr_t top_;
+	uintptr_t end_;
 };
 
 using allocator = frg::slab_allocator<bump_policy, lib::noop_lock>;
 
-allocator &get_allocator();
+allocator &alloc();
 
-} // namespace mem
+void init_alloc();
+
+} // namespace tart

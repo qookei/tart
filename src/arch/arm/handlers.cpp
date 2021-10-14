@@ -63,9 +63,4 @@ void systick(void *ctx) {
 	static_cast<irq_state *>(ctx)->log();
 }
 
-void handle_irq(void *ctx, size_t irq) {
-	lib::log("tart: irq %lu\r\n", irq);
-	static_cast<irq_state *>(ctx)->log();
-}
-
 } // namespace tart

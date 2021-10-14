@@ -1,4 +1,5 @@
 #include <tart/arch/init.hpp>
+#include <tart/chip/irq.hpp>
 
 #include <stdint.h>
 #include <stddef.h>
@@ -24,8 +25,7 @@ struct vector_table {
 	vec_fn pend_sv_call;
 	vec_fn systick;
 
-	// TODO: get irq count and handler pointers from chip
-	frg::array<vec_fn, 68> irqs;
+	frg::array<vec_fn, tart::chip::n_irqs> irqs;
 };
 
 template <void (*Fn)(void *)>
@@ -35,11 +35,11 @@ template <void (*Fn)(void *)>
 
 template <size_t N>
 void irq_handler(void *ctx) {
-	tart::handle_irq(ctx, N);
+	tart::chip::handle_irq(ctx, N);
 }
 
 template <size_t N>
-frg::array<vec_fn, N> make_irq_handlers() {
+constexpr frg::array<vec_fn, N> make_irq_handlers() {
 	return [] <size_t ...I>(std::index_sequence<I...>) {
 		return frg::array<vec_fn, N>{&vector_fn<irq_handler<I>>...};
 	} (std::make_index_sequence<N>{});
@@ -60,5 +60,5 @@ vector_table tart_vector_table__ = {
 	.pend_sv_call = &vector_fn<tart::pend_sv_call>,
 	.systick = &vector_fn<tart::systick>,
 
-	.irqs = make_irq_handlers<68>()
+	.irqs = make_irq_handlers<tart::chip::n_irqs>()
 };

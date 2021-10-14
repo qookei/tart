@@ -11,6 +11,11 @@ namespace tart {
 
 void early_init() {
 	chip::early_init();
+	lib::log("tart: early chip init done\r\n");
+	//chip::arch_init();
+	lib::log("tart: early arch init done\r\n");
+	init_alloc();
+	lib::log("tart: memory allocator init done\r\n");
 }
 
 void late_init() {
@@ -33,6 +38,7 @@ void lib_main() {
 // TODO: remove me
 async::result<void> async_main() {
 	lib::log("tart: hi!\r\n");
+	FRG_ASSERT(!"testing");
 	lib::panic("test");
 	co_return;
 }
