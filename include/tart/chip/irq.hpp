@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <stddef.h>
 
 namespace tart::chip {
@@ -12,4 +13,5 @@ namespace tart::chip {
 #endif
 
 	void handle_irq(void *ctx, size_t irq);
+	uint32_t get_core_freq();
 } // namespace tart::chip

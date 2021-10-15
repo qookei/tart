@@ -1,6 +1,8 @@
 #include <tart/lib/logger.hpp>
 #include <stdarg.h>
 
+#include <tart/time.hpp>
+
 #include <frg/printf.hpp>
 #include <frg/formatting.hpp>
 #include <frg/utility.hpp>
@@ -61,9 +63,22 @@ void vlog(const char *fmt, va_list va) {
 	frg::printf_format(usart_formatter, fmt, &vs).unwrap();
 }
 
+void log_nots(const char *fmt, ...) {
+	va_list va;
+	va_start(va, fmt);
+	vlog(fmt, va);
+	va_end(va);
+}
+
 } // namespace anonymous
 
 void log(const char *fmt, ...) {
+	auto now = tart::ms_now();
+	auto ms = now % 1000;
+	auto s = now / 1000;
+
+	log_nots("[%llu.%03llu] ", s, ms);
+
 	va_list va;
 	va_start(va, fmt);
 	vlog(fmt, va);
@@ -79,21 +94,13 @@ void log(const char *fmt, ...) {
 	va_end(va);
 
 	size_t n = 0;
-	tart::walk_stack([&n](uintptr_t ptr) {
+	tart::arch::walk_stack([&n](uintptr_t ptr) {
 		lib::log("  #%lu -> %08lx\r\n", n, ptr);
 		n++;
 	});
 
 	while(1);
 	__builtin_unreachable();
-}
-
-extern "C" void frg_panic(const char *msg) {
-	panic("frg panic: %s\r\n", msg);
-}
-
-extern "C" void frg_log(const char *msg) {
-	log("frg log: %s\r\n", msg);
 }
 
 constexpr size_t bytes_per_line = 16;

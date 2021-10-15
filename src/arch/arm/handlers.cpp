@@ -1,4 +1,5 @@
 #include "handlers.hpp"
+#include <tart/time.hpp>
 
 #include <stdint.h>
 
@@ -58,9 +59,8 @@ void pend_sv_call(void *ctx) {
 	lib::panic("tart: unexpected pending sv call\r\n");
 }
 
-void systick(void *ctx) {
-	lib::log("tart: unexpected systick\r\n");
-	static_cast<irq_state *>(ctx)->log();
+void systick(void *) {
+	current_time_ = current_time_ + 1;
 }
 
 } // namespace tart

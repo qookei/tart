@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-namespace tart {
+namespace tart::arch {
 	void walk_stack(void (*fn)(uintptr_t, void *), void *ctx);
 
 	template <typename F>
@@ -12,4 +12,4 @@ namespace tart {
 			fn(addr);
 		}, &functor);
 	}
-} // namespace tart
+} // namespace tart::arch

@@ -1,6 +1,6 @@
 #include <tart/arch/memory.hpp>
 
-namespace tart {
+namespace tart::arch {
 	void walk_stack(void (*fn)(uintptr_t, void *), void *ctx) {
 		uintptr_t *bp;
 		asm volatile ("mov %[v], r7" : [v] "=r" (bp) : : "memory");
@@ -13,4 +13,4 @@ namespace tart {
 			fn(ip, ctx);
 		}
 	}
-} // namespace tart
+} // namespace tart::arch
