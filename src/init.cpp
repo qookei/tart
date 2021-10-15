@@ -34,14 +34,3 @@ void lib_main() {
 }
 
 } // namespace tart
-
-
-// TODO: remove me
-async::result<void> async_main() {
-	lib::log("tart: hi!\r\n");
-	FRG_ASSERT(!"testing");
-	//lib::panic("test");
-	//
-	//
-	co_return;
-}

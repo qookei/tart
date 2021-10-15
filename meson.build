@@ -7,7 +7,6 @@ project('tart', 'cpp',
 		'cpp_std=c++20'])
 
 objcopy = find_program('objcopy')
-size = find_program('size')
 
 arch = 'user'
 chip = get_option('platform')
@@ -90,14 +89,19 @@ sources += [
 	)
 ]
 
-elf = executable('tart.elf', sources,
+lib = static_library('tart', sources,
 		include_directories: [includes, libasync_inc],
 		dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
 		cpp_args: cpp_args,
 		link_args: link_args,
-		link_depends: link_depends)
+		link_depends: link_depends,
+		pic: false)
 
-bin = custom_target('tart.bin',
-		input: elf, output: 'tart.bin',
-		build_by_default: true,
-		command: [objcopy, '-O', 'binary', '@INPUT@', '@OUTPUT@'])
+tart_dep = declare_dependency(link_whole: lib,
+	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
+	link_args: link_args,
+	compile_args: cpp_args,
+	link_depends: link_depends,
+	include_directories: [includes, libasync_inc])
+
+subdir('examples/hello')
