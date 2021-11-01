@@ -11,7 +11,7 @@ objcopy = find_program('objcopy')
 arch = 'user'
 chip = get_option('platform')
 
-includes = include_directories('include', 'include/compat', 'src')
+includes = include_directories('include', 'include/compat')
 sources = []
 
 cpp_args = ['-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
@@ -22,14 +22,6 @@ link_depends = []
 subdir('src/chip')
 subdir('src/arch')
 
-if meson.get_compiler('cpp').has_argument('-fcoroutines')
-	cpp_args += ['-fcoroutines']
-elif meson.get_compiler('cpp').has_argument('-fcoroutines-ts')
-	cpp_args += ['-fcoroutines-ts']
-else
-	error('unsupported compiler')
-endif
-
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
 cxxshim = subproject('cxxshim')
 libarch = subproject('libarch', default_options: ['install_headers=false'])
@@ -37,30 +29,7 @@ libarch = subproject('libarch', default_options: ['install_headers=false'])
 frigg_dep = frigg.get_variable('frigg_dep')
 cxxshim_dep = cxxshim.get_variable('cxxshim_dep')
 
-cxxshim_coro_dep_name = ''
-if meson.get_compiler('cpp').get_id() == 'clang'
-	cxxshim_coro_dep_name = 'clang_coroutine_dep'
-else
-	cxxshim_coro_dep_name = 'std_coroutine_dep'
-endif
-
-cxxshim_coro_dep = cxxshim.get_variable(cxxshim_coro_dep_name)
-
-if meson.get_compiler('cpp').get_id() == 'clang'
-	# FIXME: clang with "-target arm-none-eabi" doesn't seem to care
-	#        about the gcc toolchain even if we explicitly tell it about
-	#        one, the short-term fix is hardcoding the include and library paths
-	link_args += ['-L/usr/lib/gcc/arm-none-eabi/11.1.0']
-
-
-	# enable some functions clang emits calls to that would be found in compiler-rt
-	# (these functions are __aeabi_mem{cpy,clr,move}, which are like mem{cpy,set,move})
-	cpp_args += ['-DCLANG_MEMES']
-
-	# override libasync check for which coroutine header to use (since both the gcc
-	# and the clang one are in the include path due to the -I... arguments passed above)
-	cpp_args += ['-DLIBASYNC_FORCE_USE_EXPERIMENTAL']
-endif
+cxxshim_coro_dep = cxxshim.get_variable('std_coroutine_dep')
 
 if get_option('enc28j60-verbose')
 	cpp_args += ['-DENC28J60_VERBOSE']
