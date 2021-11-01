@@ -4,7 +4,7 @@
 namespace tart::chip {
 
 void handle_irq(void *, size_t irq) {
-	info() << "tart: irq " << irq << "\r\n" << frg::endlog;
+	info() << "tart: irq " << irq << frg::endlog;
 }
 
 uint32_t get_core_freq() {

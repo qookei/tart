@@ -22,6 +22,7 @@ void fatal_sink::operator()(const char *msg) {
 
 void fatal_sink::finalize(bool) {
 	// TODO: proper panic
+	(*this)("\x1b[0m\r\n");
 	while(1);
 }
 

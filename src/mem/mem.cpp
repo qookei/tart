@@ -17,7 +17,7 @@ uintptr_t bump_policy::map(size_t size, size_t align) {
 
 	if (ptr + size > end_) {
 		fatal() << "tart: out of memory, tried to allocate " << size << " bytes with "
-			<< align << " alignment\r\n" << frg::endlog;
+			<< align << " alignment" << frg::endlog;
 	}
 
 	memset(reinterpret_cast<void *>(ptr), 0, size);
@@ -25,7 +25,7 @@ uintptr_t bump_policy::map(size_t size, size_t align) {
 }
 
 void bump_policy::unmap(uintptr_t, size_t) {
-	fatal() << "tart: bump_policy::unmap is unimplemented\r\n" << frg::endlog;
+	fatal() << "tart: bump_policy::unmap is unimplemented" << frg::endlog;
 }
 
 // --------------------------------------------------------------------
@@ -44,7 +44,7 @@ void init_alloc() {
 	auto [start, end] = chip::get_heap_area();
 
 	info() << "tart: initializing heap 0x" << frg::hex_fmt{start}
-		<< "-0x" << frg::hex_fmt{end} << "\r\n" << frg::endlog;
+		<< "-0x" << frg::hex_fmt{end} << frg::endlog;
 	policy_.initialize(start, end);
 	pool_.initialize(*policy_);
 	alloc_.initialize(pool_.get());

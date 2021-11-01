@@ -12,6 +12,8 @@ void user_init() {
 }
 
 async::result<void> async_main() {
-	tart::info() << "Hello world!\r\n" << frg::endlog;
+	tart::info() << "info: Hello world!" << frg::endlog;
+	tart::dbg() << "debug: Hello world!" << frg::endlog;
+	tart::fatal() << "fatal (will halt): Hello world!" << frg::endlog;
 	co_return;
 }

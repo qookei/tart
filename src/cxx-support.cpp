@@ -4,11 +4,12 @@
 #include <new>
 
 extern "C" [[gnu::used]] void __cxa_pure_virtual() {
-	tart::fatal() << "tart: panic: pure virtual function called\r\n" << frg::endlog;
+	tart::fatal() << "tart: panic: pure virtual function called" << frg::endlog;
+	__builtin_unreachable();
 }
 
 void frg_log(const char *msg) {
-	tart::info() << "tart: " << msg << "\r\n" << frg::endlog;
+	tart::info() << "tart: " << msg << frg::endlog;
 }
 
 void frg_panic(const char *msg) {
