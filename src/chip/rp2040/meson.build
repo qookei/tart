@@ -16,7 +16,8 @@ sources += files(
 	'clocks.cpp',
 	'uart.cpp',
 	'irq.cpp',
-	'memory.cpp'
+	'memory.cpp',
+	'atomic.cpp'
 )
 
 sources += stage1_blob_gen.process('stage1/stage1-w25q080.S')

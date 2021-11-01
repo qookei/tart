@@ -23,14 +23,12 @@ void late_init() {
 }
 
 void lib_main() {
-	async::run_queue rq;
-	async::queue_scope qs{&rq};
-	irq_service ios{&rq};
+	irq_service ios;
 
 	lib::log("tart: hello!\r\n");
 
 	lib::log("tart: entering async_main\r\n");
-	async::run(::async_main(), rq.run_token(), ios);
+	async::run(::async_main(), ios);
 }
 
 } // namespace tart

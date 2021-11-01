@@ -102,7 +102,6 @@ tart_dep = declare_dependency(link_whole: lib,
 	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
 	link_args: link_args,
 	compile_args: cpp_args,
-	link_depends: link_depends,
 	include_directories: [includes, libasync_inc])
 
 subdir('examples/hello')
