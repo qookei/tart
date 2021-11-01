@@ -1,6 +1,6 @@
 #include <tart/log.hpp>
 #include <tart/lib/string.hpp>
-#include <tart/mem/mem.hpp>
+#include <tart/alloc.hpp>
 #include <new>
 
 extern "C" [[gnu::used]] void __cxa_pure_virtual() {

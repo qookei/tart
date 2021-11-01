@@ -76,7 +76,7 @@ libasync_inc = include_directories('subprojects/libasync/include')
 sources += [
 	files(
 		'src/lib/string.cpp',
-		'src/mem/mem.cpp',
+		'src/alloc.cpp',
 		#		'src/drivers/w25x.cpp',
 		#		'src/drivers/enc28j60.cpp',
 		#'src/net/arp.cpp',

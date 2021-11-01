@@ -1,6 +1,4 @@
-
-#include <tart/mem/mem.hpp>
-#include <tart/log.hpp>
+#include <tart/alloc.hpp>
 #include <tart/log.hpp>
 
 #include <frg/manual_box.hpp>

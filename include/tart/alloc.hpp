@@ -2,7 +2,6 @@
 
 #include <frg/spinlock.hpp>
 #include <frg/slab.hpp>
-#include <tart/lib/utils.hpp>
 
 namespace tart {
 
