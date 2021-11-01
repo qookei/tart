@@ -2,7 +2,7 @@
 
 #include <arch/register.hpp>
 
-namespace platform::clocks {
+namespace tart::hw::clocks {
 	namespace reg {
 		inline constexpr arch::bit_register<uint32_t> ctrl{0x00};
 		inline constexpr arch::scalar_register<uint32_t> div{0x04};
@@ -48,9 +48,9 @@ namespace platform::clocks {
 		inline constexpr uint8_t rtc_pll_usb = 0;
 
 	} // namespace src
-} // namespace platform::clocks
+} // namespace tart::hw::clocks
 
-namespace platform::xosc {
+namespace tart::hw::xosc {
 	namespace reg {
 		inline constexpr arch::bit_register<uint32_t> ctrl{0x00};
 		inline constexpr arch::bit_register<uint32_t> status{0x04};
@@ -76,9 +76,9 @@ namespace platform::xosc {
 		inline constexpr arch::field<uint32_t, bool> badwrite{24, 1};
 		inline constexpr arch::field<uint32_t, bool> enabled{12, 1};
 	} // namespace status
-} // namespace platform::xosc
+} // namespace tart::hw::xosc
 
-namespace platform::pll {
+namespace tart::hw::pll {
 	namespace reg {
 		inline constexpr arch::bit_register<uint32_t> cs{0x00};
 		inline constexpr arch::bit_register<uint32_t> pwr{0x04};
@@ -103,4 +103,4 @@ namespace platform::pll {
 		inline constexpr arch::field<uint32_t, uint8_t> postdiv1{16, 3};
 		inline constexpr arch::field<uint32_t, uint8_t> postdiv2{12, 3};
 	}
-} // namespace platform::pll
+} // namespace tart::hw::pll

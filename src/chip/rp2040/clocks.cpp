@@ -1,9 +1,10 @@
 #include <tart/chip/rp2040/clocks.hpp>
-#include <tart/chip/rp2040/reg/clocks.hpp>
+#include <tart/hw/rp2040/clocks.hpp>
 
 #include <tart/chip/rp2040/resets.hpp>
 
 namespace platform::clocks {
+	using namespace tart::hw::clocks;
 	inline constexpr uint32_t mhz = 1000000;
 
 	constexpr bool has_glmux(uintptr_t clock) {
@@ -77,6 +78,7 @@ namespace platform::clocks {
 } // namespace platform::clocks
 
 namespace platform::xosc {
+	using namespace tart::hw::xosc;
 	void init() {
 		xosc_space.store(reg::ctrl, ctrl::enable(ctrl::enable_val::enable)
 				| ctrl::freq_range(ctrl::freq_range_val::one_fifteen_mhz));
@@ -95,6 +97,8 @@ namespace platform::xosc {
 } // namespace platform::xosc
 
 namespace platform::pll {
+	using namespace tart::hw::pll;
+
 	struct cfg {
 		uint32_t refdiv;
 		uint32_t fbdiv;

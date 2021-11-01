@@ -5,7 +5,7 @@
 
 #include <arch/register.hpp>
 
-namespace platform::usart {
+namespace tart::hw::uart {
 	namespace reg {
 		inline constexpr arch::scalar_register<uint32_t> data{0x00};
 		inline constexpr arch::bit_register<uint32_t> status{0x18};
@@ -17,6 +17,7 @@ namespace platform::usart {
 
 	namespace status {
 		inline constexpr arch::field<uint32_t, bool> tx_full{5, 1};
+		inline constexpr arch::field<uint32_t, bool> rx_empty{4, 1};
 	} // namespace status
 
 	namespace control {
@@ -29,4 +30,4 @@ namespace platform::usart {
 		inline constexpr arch::field<uint32_t, uint8_t> word_len{5, 2};
 		inline constexpr arch::field<uint32_t, bool> fifo_en{4, 1};
 	} // namespace line_control
-} // namespace usart
+} // namespace tart::hw::uart

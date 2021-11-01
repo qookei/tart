@@ -1,7 +1,9 @@
 #include <tart/chip/rp2040/resets.hpp>
-#include <tart/chip/rp2040/reg/resets.hpp>
+#include <tart/hw/rp2040/resets.hpp>
 
 namespace platform::resets {
+	using namespace tart::hw::resets;
+
 	void reset(periph p) {
 		auto orig = resets_space.load(reg::reset);
 		auto p_v = static_cast<uint32_t>(p);

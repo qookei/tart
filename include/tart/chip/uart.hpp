@@ -1,20 +1,33 @@
 #pragma once
 
-#include <stdint.h>
+#include <stddef.h>
 
-namespace chip {
+#include <arch/mem_space.hpp>
+
+namespace tart::chip {
 	struct uart {
-		uart(int nth)
-		: nth_{nth} { }
+		uart(int nth, uintptr_t base)
+		: nth_{nth}, space_{base} { }
 
-		void init(uint32_t baud);
-		void deinit();
+		void init(int baud);
+		void send_sync(const void *data, size_t size);
+		void send_sync(const char *data);
 
-		void send(uint8_t v);
-		void send(const void *data, size_t size);
+		bool tx_full() const;
+		bool rx_empty() const;
 
-		uint8_t recv_blocking();
+		int nth() const {
+			return nth_;
+		}
+
 	private:
 		int nth_;
+		arch::mem_space space_;
 	};
-} // namespace chip
+
+#if defined (TART_CHIP_RP2040)
+	inline uart uart0{0, 0x40034000};
+	inline uart uart1{1, 0x40038000};
+#endif
+
+} // namespace tart::chip
