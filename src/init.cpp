@@ -21,11 +21,9 @@ void init() {
 }
 
 void lib_main() {
-	irq_service ios;
-
 	info() << "tart: initialization done, entering async_main" << frg::endlog;
 
-	async::run(::async_main(), ios);
+	async::run(::async_main(), irq_s);
 }
 
 } // namespace tart

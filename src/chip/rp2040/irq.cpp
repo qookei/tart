@@ -1,10 +1,18 @@
 #include <tart/chip/irq.hpp>
+#include <tart/chip/uart.hpp>
 #include <tart/log.hpp>
+#include <tart/irq_service.hpp>
 
 namespace tart::chip {
 
 void handle_irq(void *, size_t irq) {
 	info() << "tart: irq " << irq << frg::endlog;
+
+	switch (irq) {
+		case 20: uart0.handle_irq(); break;
+	}
+
+	irq_seq_ = irq_seq_ + 1;
 }
 
 uint32_t get_core_freq() {
