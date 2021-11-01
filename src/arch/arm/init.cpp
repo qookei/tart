@@ -3,7 +3,7 @@
 
 #include <tart/arch/arm/systick.hpp>
 
-#include <tart/lib/string.hpp>
+#include <string.h>
 #include <tart/log.hpp>
 
 #include <stdint.h>

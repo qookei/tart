@@ -1,5 +1,5 @@
 #include <tart/log.hpp>
-#include <tart/lib/string.hpp>
+#include <string.h>
 #include <tart/alloc.hpp>
 #include <new>
 

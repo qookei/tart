@@ -11,7 +11,7 @@ objcopy = find_program('objcopy')
 arch = 'user'
 chip = get_option('platform')
 
-includes = include_directories('include', 'src')
+includes = include_directories('include', 'include/compat', 'src')
 sources = []
 
 cpp_args = ['-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',

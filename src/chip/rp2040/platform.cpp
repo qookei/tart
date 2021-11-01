@@ -2,9 +2,6 @@
 #include <tart/chip/rp2040/resets.hpp>
 #include <tart/chip/rp2040/clocks.hpp>
 
-#include <tart/log.hpp>
-#include <tart/lib/string.hpp>
-
 #include <stdint.h>
 
 namespace tart::chip {

@@ -1,5 +1,5 @@
 #include <frg/spinlock.hpp>
-#include <tart/lib/utils.hpp>
+#include <assert.h>
 
 extern "C" void frg_panic(const char *str);
 

@@ -1,4 +1,4 @@
-#include <tart/lib/string.hpp>
+#include <string.h>
 
 [[gnu::used]] void *memcpy(void *dest, const void *src, size_t size) {
 	char *d = static_cast<char *>(dest);
