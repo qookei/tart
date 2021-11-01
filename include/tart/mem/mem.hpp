@@ -1,5 +1,6 @@
 #pragma once
 
+#include <frg/spinlock.hpp>
 #include <frg/slab.hpp>
 #include <tart/lib/utils.hpp>
 
@@ -22,7 +23,7 @@ private:
 	uintptr_t end_;
 };
 
-using allocator = frg::slab_allocator<bump_policy, lib::noop_lock>;
+using allocator = frg::slab_allocator<bump_policy, frg::ticket_spinlock>;
 
 allocator &alloc();
 

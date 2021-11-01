@@ -1,14 +1,14 @@
+#include <frg/spinlock.hpp>
 #include <tart/lib/utils.hpp>
-#include <tart/log.hpp>
 
-#define LIBASYNC_THREAD_LOCAL
+extern "C" void frg_panic(const char *str);
 
 namespace async::platform {
-	using mutex = lib::noop_lock;
+	using mutex = frg::ticket_spinlock;
 
 	[[noreturn]] inline void panic(const char *str) {
-		tart::info() << str << "\r\n";
-		while(1);
+
+		frg_panic(str);
 		__builtin_unreachable();
 	}
 } // namespace async::platform

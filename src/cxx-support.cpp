@@ -12,7 +12,13 @@ void frg_log(const char *msg) {
 }
 
 void frg_panic(const char *msg) {
-	tart::fatal() << "tart: frigg panic: " << msg << "\r\n" << frg::endlog;
+	tart::fatal() << "tart: panic: " << msg << frg::endlog;
+	__builtin_unreachable();
+}
+
+[[noreturn]] void assert_failure__(const char *expr, const char *file, int line, const char *func) {
+	tart::fatal() << "tart: " << file << ":" << line << ": " << func << ": assertion '" << expr << "' failed" << frg::endlog;
+	__builtin_unreachable();
 }
 
 void *operator new(size_t size){

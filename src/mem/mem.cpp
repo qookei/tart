@@ -32,7 +32,7 @@ void bump_policy::unmap(uintptr_t, size_t) {
 
 namespace {
 	frg::manual_box<bump_policy> policy_;
-	frg::manual_box<frg::slab_pool<bump_policy, lib::noop_lock>> pool_;
+	frg::manual_box<frg::slab_pool<bump_policy, frg::ticket_spinlock>> pool_;
 	frg::manual_box<allocator> alloc_;
 }
 

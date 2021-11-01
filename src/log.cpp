@@ -1,6 +1,4 @@
 #include <tart/log.hpp>
-// TODO add generic uart interface
-//#include <tart/chip/stm32f103x8/usart.hpp>
 #include <tart/chip/uart.hpp>
 
 namespace tart {
