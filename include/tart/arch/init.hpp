@@ -3,5 +3,5 @@
 extern "C" void reset_handler();
 
 namespace tart::arch {
-	void early_init();
+	void init();
 } // namespace tart::arch

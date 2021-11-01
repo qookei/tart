@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 
 namespace tart {
 
@@ -12,51 +12,50 @@ struct irq_state {
 	uintptr_t lr, pc, psr;
 
 	void log() {
-		lib::log("r0: 0x%08x, r1: 0x%08x, r2: 0x%08x, r3: 0x%08x, r12: 0x%08x\r\n", r0, r1, r2, r3, r12);
-		lib::log("lr = 0x%08x, pc = 0x%08x, psr = 0x%08x\r\n", lr, pc, psr);
+		info() << "r0 = " << frg::hex_fmt{r0} << "\r\n" << frg::endlog;
+		info() << "r1 = " << frg::hex_fmt{r1} << "\r\n" << frg::endlog;
+		info() << "r2 = " << frg::hex_fmt{r2} << "\r\n" << frg::endlog;
+		info() << "r3 = " << frg::hex_fmt{r3} << "\r\n" << frg::endlog;
+		info() << "r12 = " << frg::hex_fmt{r12} << "\r\n" << frg::endlog;
+		info() << "lr = " << frg::hex_fmt{lr} << "\r\n" << frg::endlog;
+		info() << "pc = " << frg::hex_fmt{pc} << "\r\n" << frg::endlog;
+		info() << "psr = " << frg::hex_fmt{psr} << "\r\n" << frg::endlog;
 	}
 };
 
 void nmi(void *ctx) {
-	lib::log("tart: unexpected nmi\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected nmi\r\n");
+	fatal() << "tart: unexpected nmi\r\n" << frg::endlog;
 }
 
 void hard_fault(void *ctx) {
-	lib::log("tart: unexpected hard fault\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected hard fault\r\n");
+	fatal() << "tart: unexpected hard fault\r\n" << frg::endlog;
 }
 
 void mm_fault(void *ctx) {
-	lib::log("tart: unexpected mm fault\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected mm fault\r\n");
+	fatal() << "tart: unexpected mm fault\r\n" << frg::endlog;
 }
 
 void bus_fault(void *ctx) {
-	lib::log("tart: unexpected bus fault\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected bus fault\r\n");
+	fatal() << "tart: unexpected bus fault\r\n" << frg::endlog;
 }
 
 void usage_fault(void *ctx) {
-	lib::log("tart: unexpected usage fault\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected usage fault\r\n");
+	fatal() << "tart: unexpected usage fault\r\n" << frg::endlog;
 }
 
 void sv_call(void *ctx) {
-	lib::log("tart: unexpected sv call\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected sv call\r\n");
+	fatal() << "tart: unexpected sv call\r\n" << frg::endlog;
 }
 
 void pend_sv_call(void *ctx) {
-	lib::log("tart: unexpected pending sv call\r\n");
 	static_cast<irq_state *>(ctx)->log();
-	lib::panic("tart: unexpected pending sv call\r\n");
+	fatal() << "tart: unexpected pending sv call\r\n" << frg::endlog;
 }
 
 void systick(void *) {

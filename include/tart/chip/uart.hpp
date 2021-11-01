@@ -6,7 +6,7 @@
 
 namespace tart::chip {
 	struct uart {
-		uart(int nth, uintptr_t base)
+		constexpr uart(int nth, uintptr_t base)
 		: nth_{nth}, space_{base} { }
 
 		void init(int baud);
@@ -26,8 +26,8 @@ namespace tart::chip {
 	};
 
 #if defined (TART_CHIP_RP2040)
-	inline uart uart0{0, 0x40034000};
-	inline uart uart1{1, 0x40038000};
+	inline constinit uart uart0{0, 0x40034000};
+	inline constinit uart uart1{1, 0x40038000};
 #endif
 
 } // namespace tart::chip

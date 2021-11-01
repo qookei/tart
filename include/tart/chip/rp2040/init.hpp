@@ -1,5 +1,5 @@
 #pragma once
 
 namespace tart::chip {
-	void early_init();
+	void init();
 } // namespace tart::chip

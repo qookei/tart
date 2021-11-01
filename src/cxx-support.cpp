@@ -1,18 +1,18 @@
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 #include <tart/lib/string.hpp>
 #include <tart/mem/mem.hpp>
 #include <new>
 
 extern "C" [[gnu::used]] void __cxa_pure_virtual() {
-	lib::panic("pure virtual function called\r\n");
+	tart::fatal() << "tart: panic: pure virtual function called\r\n" << frg::endlog;
 }
 
-void frg_log(const char *cstring) {
-	lib::log("tart: %s\r\n", cstring);
+void frg_log(const char *msg) {
+	tart::info() << "tart: " << msg << "\r\n" << frg::endlog;
 }
 
-void frg_panic(const char *cstring) {
-	lib::panic("frigg panic: %s\r\n", cstring);
+void frg_panic(const char *msg) {
+	tart::fatal() << "tart: frigg panic: " << msg << "\r\n" << frg::endlog;
 }
 
 void *operator new(size_t size){

@@ -6,28 +6,25 @@
 
 #include <tart/irq_service.hpp>
 #include <async/basic.hpp>
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 #include <tart/mem/mem.hpp>
 
 namespace tart {
 
-void early_init() {
-	chip::early_init();
-	lib::log("tart: early chip init done\r\n");
-	arch::early_init();
-	lib::log("tart: early arch init done\r\n");
+void init() {
+	chip::init();
+	arch::init();
 	init_alloc();
-}
 
-void late_init() {
+	if (user_init)
+		user_init();
 }
 
 void lib_main() {
 	irq_service ios;
 
-	lib::log("tart: hello!\r\n");
+	info() << "tart: initialization done, entering async_main\r\n" << frg::endlog;
 
-	lib::log("tart: entering async_main\r\n");
 	async::run(::async_main(), ios);
 }
 

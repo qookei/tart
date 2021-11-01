@@ -1,6 +1,6 @@
 #pragma once
 
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 
 namespace lib {
 
@@ -24,5 +24,5 @@ struct noop_lock {
 // public ns
 [[noreturn]] static inline void assert_failure__(
 		const char *expr, const char *file, int line, const char *func) {
-	lib::panic("tart: %s:%d: %s: assertion '%s' failed\r\n", file, line, func, expr);
+	tart::fatal() << "tart: " << file << ":" << line << ": " << func << ": assertion '" << expr << "' failed\r\n" << frg::endlog;
 }

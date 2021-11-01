@@ -1,6 +1,7 @@
 
 #include <tart/mem/mem.hpp>
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
+#include <tart/log.hpp>
 
 #include <frg/manual_box.hpp>
 
@@ -15,7 +16,8 @@ uintptr_t bump_policy::map(size_t size, size_t align) {
 	top_ += size;
 
 	if (ptr + size > end_) {
-		lib::panic("tart: out of memory, tried to allocate %lu bytes with %lu alignment\r\n", size, align);
+		fatal() << "tart: out of memory, tried to allocate " << size << " bytes with "
+			<< align << " alignment\r\n" << frg::endlog;
 	}
 
 	memset(reinterpret_cast<void *>(ptr), 0, size);
@@ -23,7 +25,7 @@ uintptr_t bump_policy::map(size_t size, size_t align) {
 }
 
 void bump_policy::unmap(uintptr_t, size_t) {
-	lib::panic("tart: bump_policy::unmap is unimplemented\r\n");
+	fatal() << "tart: bump_policy::unmap is unimplemented\r\n" << frg::endlog;
 }
 
 // --------------------------------------------------------------------
@@ -41,8 +43,8 @@ allocator &alloc() {
 void init_alloc() {
 	auto [start, end] = chip::get_heap_area();
 
-	lib::log("tart: initializing heap 0x%08x-0x%08x\r\n", start, end);
-
+	info() << "tart: initializing heap 0x" << frg::hex_fmt{start}
+		<< "-0x" << frg::hex_fmt{end} << "\r\n" << frg::endlog;
 	policy_.initialize(start, end);
 	pool_.initialize(*policy_);
 	alloc_.initialize(pool_.get());

@@ -2,7 +2,7 @@
 #include <tart/chip/rp2040/resets.hpp>
 #include <tart/chip/rp2040/clocks.hpp>
 
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 #include <tart/lib/string.hpp>
 
 #include <stdint.h>
@@ -11,7 +11,7 @@ namespace tart::chip {
 
 using namespace platform;
 
-void early_init() {
+void init() {
 	clocks::setup_ext_12mhz();
 
 	resets::reset(resets::periph::io_bank0);
@@ -24,8 +24,6 @@ void early_init() {
 
 	sio[8] = 1 << 25;
 	sio[4] = 1 << 25;
-
-	usart::init(1, 115200);
 }
 
 } // namespace tart::chip

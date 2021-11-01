@@ -1,10 +1,10 @@
 #include <tart/chip/irq.hpp>
-#include <tart/lib/logger.hpp>
+#include <tart/log.hpp>
 
 namespace tart::chip {
 
 void handle_irq(void *, size_t irq) {
-	lib::log("tart: irq %lu\r\n", irq);
+	info() << "tart: irq " << irq << "\r\n" << frg::endlog;
 }
 
 uint32_t get_core_freq() {
