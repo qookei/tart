@@ -5,15 +5,10 @@
 #include <tart/arch/wait.hpp>
 
 namespace tart {
-	inline volatile uint64_t irq_seq_ = 0;
-
 	struct irq_waiter {
 		void wait() {
-			while (last_seq_ == irq_seq_) {
+			while (pending_.empty())
 				arch::wait_for_irq();
-			}
-
-			last_seq_ = irq_seq_;
 
 			while (!pending_.empty()) {
 				auto node = pending_.pop_front();
@@ -26,8 +21,6 @@ namespace tart {
 		}
 
 	private:
-		uint64_t last_seq_ = 0;
-
 		frg::intrusive_list<
 			irq_node,
 			frg::locate_member<
