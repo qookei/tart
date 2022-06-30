@@ -11,8 +11,6 @@ void handle_irq(void *, size_t irq) {
 	switch (irq) {
 		case 20: uart0.handle_irq(); break;
 	}
-
-	irq_seq_ = irq_seq_ + 1;
 }
 
 uint32_t get_core_freq() {
