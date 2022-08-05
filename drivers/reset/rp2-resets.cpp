@@ -2,20 +2,20 @@
 
 namespace {
 	namespace reg {
-		inline constexpr arch::scalar_register<uint32_t> reset{0x00};
-		inline constexpr arch::scalar_register<uint32_t> reset_done{0x08};
+		inline constexpr arch::bit_register<uint32_t> reset{0x00};
+		inline constexpr arch::bit_register<uint32_t> reset_done{0x08};
 	} // namespace reg
 } // namespace anonymous
 
 namespace tart {
 	void rp2_resets::reset(uint16_t block) {
-		auto block_mask = 1 << block;
+		arch::field<uint32_t, bool> block_f{block, 1};
 
 		auto orig = space_.load(reg::reset);
-		space_.store(reg::reset, orig | block_mask);
-		space_.store(reg::reset, orig & ~block_mask);
+		space_.store(reg::reset, orig / block_f(true));
+		space_.store(reg::reset, orig / block_f(false));
 
-		while (!(space_.load(reg::reset_done) & block_mask))
+		while (!(space_.load(reg::reset_done) & block_f))
 			;
 	}
 } // namespace tart

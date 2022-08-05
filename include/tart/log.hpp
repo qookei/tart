@@ -4,6 +4,12 @@
 
 namespace tart {
 
+struct log_sink {
+	virtual void blocking_write(const char *msg) = 0;
+protected:
+	virtual ~log_sink() = default;
+};
+
 struct info_sink {
 	constexpr info_sink() = default;
 	void operator()(const char *msg);
@@ -27,5 +33,7 @@ struct fatal_sink {
 inline constinit frg::stack_buffer_logger<debug_sink> dbg;
 inline constinit frg::stack_buffer_logger<info_sink> info;
 inline constinit frg::stack_buffer_logger<fatal_sink> fatal;
+
+void set_log_sink(log_sink *sink);
 
 } // namespace tart

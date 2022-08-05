@@ -14,7 +14,6 @@ sources += files(
 	'platform.cpp',
 	'resets.cpp',
 	'clocks.cpp',
-	'uart.cpp',
 	'irq.cpp',
 	'memory.cpp',
 	'atomic.cpp'

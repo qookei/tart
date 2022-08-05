@@ -1,4 +1,3 @@
-#include <tart/chip/rp2040/uart.hpp>
 #include <tart/chip/rp2040/resets.hpp>
 #include <tart/chip/rp2040/clocks.hpp>
 
