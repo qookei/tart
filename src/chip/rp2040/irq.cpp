@@ -1,5 +1,4 @@
 #include <tart/chip/irq.hpp>
-#include <tart/chip/uart.hpp>
 #include <tart/log.hpp>
 #include <tart/irq_service.hpp>
 
@@ -9,7 +8,7 @@ void handle_irq(void *, size_t irq) {
 	info() << "tart: irq " << irq << frg::endlog;
 
 	switch (irq) {
-		case 20: uart0.handle_irq(); break;
+//		case 20: uart0.handle_irq(); break;
 	}
 }
 

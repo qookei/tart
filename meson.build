@@ -75,7 +75,7 @@ lib = static_library('tart', sources,
 subdir('drivers/')
 
 tart_dep = declare_dependency(link_whole: lib,
-	dependencies: [tart_core_dep, rp2_gpio_dep, rp2_resets_dep],
+	dependencies: [tart_core_dep, rp2_gpio_dep, rp2_resets_dep, pl011_uart_dep],
 	link_args: link_args,
 	compile_args: cpp_args,
 	include_directories: [includes, libasync_inc])
