@@ -9,6 +9,8 @@
 
 #include <tart/irq_service.hpp>
 
+#include <tart/chip/rp2040/hw.hpp>
+
 namespace tart::chip {
 
 using namespace platform;
@@ -22,10 +24,8 @@ void uart::init(int baud) {
 		case 1: resets::reset(resets::periph::uart1); break;
 	}
 
-	// TODO: this is specific to uart0
-	auto iobank0 = (volatile uint32_t *)0x40014000;
-	iobank0[0 * 2 + 1] = (2 << 0);
-	iobank0[1 * 2 + 1] = (2 << 0);
+	gpio->configure(0, 2, gpio_flags::output);
+	gpio->configure(1, 2, gpio_flags::input | gpio_flags::pull_up);
 
 	space_.store(reg::control, control::uart_en(false));
 

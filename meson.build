@@ -58,16 +58,23 @@ sources += [
 	)
 ]
 
+
+tart_core_dep = declare_dependency(
+	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
+	compile_args: cpp_args,
+	include_directories: [includes, libasync_inc])
+
 lib = static_library('tart', sources,
-		include_directories: [includes, libasync_inc],
-		dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
+		dependencies: tart_core_dep,
 		cpp_args: cpp_args,
 		link_args: link_args,
 		link_depends: link_depends,
 		pic: false)
 
+subdir('drivers/')
+
 tart_dep = declare_dependency(link_whole: lib,
-	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
+	dependencies: [tart_core_dep, rp2_gpio_dep],
 	link_args: link_args,
 	compile_args: cpp_args,
 	include_directories: [includes, libasync_inc])
