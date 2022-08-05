@@ -8,7 +8,6 @@ namespace tart {
 }
 
 void user_init() {
-	tart::init_periph();
 	tart::chip::uart0.init(115200);
 	tart::log_sink = &tart::chip::uart0;
 }

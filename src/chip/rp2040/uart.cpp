@@ -20,12 +20,12 @@ void uart::init(int baud) {
 	constexpr uint32_t clock = 125000000;
 
 	switch (nth_) {
-		case 0: resets::reset(resets::periph::uart0); break;
-		case 1: resets::reset(resets::periph::uart1); break;
+		case 0: uart0_reset.reset(); break;
+		case 1: uart1_reset.reset(); break;
 	}
 
-	gpio->configure(0, 2, gpio_flags::output);
-	gpio->configure(1, 2, gpio_flags::input | gpio_flags::pull_up);
+	gpio.configure(0, 2, gpio_flags::output);
+	gpio.configure(1, 2, gpio_flags::input | gpio_flags::pull_up);
 
 	space_.store(reg::control, control::uart_en(false));
 

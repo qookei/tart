@@ -15,7 +15,8 @@ includes = include_directories('include', 'include/compat')
 sources = []
 
 cpp_args = ['-fno-exceptions', '-fno-rtti', '-fno-threadsafe-statics',
-		'-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer']
+		'-DLIBASYNC_CUSTOM_PLATFORM', '-fno-omit-frame-pointer',
+		'-fno-use-cxa-atexit']
 link_args = ['-lgcc']
 link_depends = []
 
@@ -74,7 +75,7 @@ lib = static_library('tart', sources,
 subdir('drivers/')
 
 tart_dep = declare_dependency(link_whole: lib,
-	dependencies: [tart_core_dep, rp2_gpio_dep],
+	dependencies: [tart_core_dep, rp2_gpio_dep, rp2_resets_dep],
 	link_args: link_args,
 	compile_args: cpp_args,
 	include_directories: [includes, libasync_inc])
