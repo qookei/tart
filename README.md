@@ -7,6 +7,8 @@ provides it's own driver for peripherals and such.
 Note that this library is under active development and as such the APIs may change at any
 time and should not be considered stable for the time being.
 
+**Official IRC channel:** `#tart` on `irc.libera.chat`.
+
 ## Supported platforms
 
 Currently, the following platforms are supported:
