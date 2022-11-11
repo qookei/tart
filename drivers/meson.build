@@ -33,3 +33,7 @@ rp2_osc_dep = declare_dependency(link_with : rp2_osc_lib)
 rp2_pll_lib = static_library('tart-rp2-pll', 'clk/rp2-pll.cpp',
 	dependencies : tart_core_dep)
 rp2_pll_dep = declare_dependency(link_with : rp2_pll_lib)
+
+rp2_clk_lib = static_library('tart-rp2-clk', 'clk/rp2-clk.cpp',
+	dependencies : tart_core_dep)
+rp2_clk_dep = declare_dependency(link_with : rp2_clk_lib)
