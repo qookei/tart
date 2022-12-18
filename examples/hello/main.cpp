@@ -3,6 +3,7 @@
 #include <tart/chip/rp2040/hw.hpp>
 
 void user_init() {
+	tart::hw_initialize();
 	tart::set_log_sink(&tart::uart0);
 }
 
