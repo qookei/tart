@@ -1,5 +1,4 @@
 #include <tart/init.hpp>
-#include <tart/chip/init.hpp>
 #include <tart/arch/init.hpp>
 
 #include <tart/main.hpp>
@@ -12,7 +11,6 @@
 namespace tart {
 
 void init() {
-	chip::init();
 	arch::init();
 	init_alloc();
 

@@ -11,9 +11,6 @@ stage1_blob_gen = generator(
 
 sources += files(
 	'stage1.cpp',
-	'platform.cpp',
-	'resets.cpp',
-	'clocks.cpp',
 	'irq.cpp',
 	'memory.cpp',
 	'atomic.cpp'
