@@ -16,7 +16,7 @@ namespace tart {
 		}
 
 	protected:
-		virtual ~clk() = default;
+		~clk() = default;
 		clk *parent_clk_;
 	};
 

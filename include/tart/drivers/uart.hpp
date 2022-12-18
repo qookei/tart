@@ -25,7 +25,7 @@ namespace tart {
 	static inline constexpr uart_params b115200_8n1 = {115200};
 
 	struct uart : log_sink {
-		uart(uart_gpios gpios)
+		constexpr uart(uart_gpios gpios)
 		: gpios_{gpios} { }
 
 		virtual void configure(uart_params params) = 0;
@@ -50,7 +50,7 @@ namespace tart {
 		}
 
 	protected:
-		virtual ~uart() = default;
+		~uart() = default;
 		uart_gpios gpios_;
 	};
 

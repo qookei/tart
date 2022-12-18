@@ -7,9 +7,11 @@
 
 namespace tart {
 	struct reset_controller {
+		constexpr reset_controller() = default;
+
 		virtual void reset(uint16_t block) = 0;
 	protected:
-		virtual ~reset_controller() = default;
+		~reset_controller() = default;
 	};
 
 	inline constexpr uint16_t reset_triggered = (1 << 0);

@@ -12,13 +12,15 @@ namespace tart {
 
 	// TODO(qookie): Add pin interrupt support
 	struct gpio_controller {
+		constexpr gpio_controller() = default;
+
 		virtual void configure(uint16_t pin, uint8_t fn, uint8_t flags) = 0;
 		virtual void set(uint16_t pin, bool value) = 0;
 		virtual void toggle(uint16_t pin) = 0;
 		virtual bool get(uint16_t pin) = 0;
 
 	protected:
-		virtual ~gpio_controller() = default;
+		~gpio_controller() = default;
 	};
 
 	struct gpio_pin {

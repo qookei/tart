@@ -11,7 +11,7 @@
 namespace tart {
 	struct pl011_uart final : uart {
 		// TODO(qookie): Add clock argument
-		pl011_uart(uintptr_t base, uart_gpios gpios, block_reset *reset)
+		constexpr pl011_uart(uintptr_t base, uart_gpios gpios, block_reset *reset)
 		: uart{gpios}, space_{base}, reset_{reset} { }
 
 		~pl011_uart() = default;
