@@ -39,6 +39,13 @@ namespace {
 
 namespace tart {
 
+void rp2_gpio::init() {
+	if (io_reset_)
+		io_reset_->reset();
+	if (pads_reset_)
+		pads_reset_->reset();
+}
+
 void rp2_gpio::configure(uint16_t pin, uint8_t fn, uint8_t flags) {
 	gpio_space_.store(ctrl_reg(pin),
 			ctrl::funcsel(fn)

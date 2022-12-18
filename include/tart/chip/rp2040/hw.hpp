@@ -6,16 +6,18 @@
 #include <tart/drivers/clk/rp2-clk.hpp>
 
 namespace tart {
-	inline constinit rp2_gpio gpio{0xd0000000, 0x4001c000, 0x40014000};
-	inline constinit gpio_pin uart0_tx_pin{&gpio, 0, 2, gpio_flags::output};
-	inline constinit gpio_pin uart0_rx_pin{&gpio, 1, 2, gpio_flags::input | gpio_flags::pull_up};
-	inline constinit gpio_pin led_pin{&gpio, 25, 5, gpio_flags::output};
-
 	inline constinit rp2_resets resets{0x4000c000};
 	inline constinit block_reset sys_pll_reset{&resets, 12, 0};
 	inline constinit block_reset usb_pll_reset{&resets, 13, 0};
 	inline constinit block_reset uart0_reset{&resets, 22, 0};
 	inline constinit block_reset uart1_reset{&resets, 23, 0};
+	inline constinit block_reset io_bank0_reset{&resets, 5, 0};
+	inline constinit block_reset pads_bank0_reset{&resets, 8, 0};
+
+	inline constinit rp2_gpio gpio{0xd0000000, 0x4001c000, 0x40014000, &io_bank0_reset, &pads_bank0_reset};
+	inline constinit gpio_pin uart0_tx_pin{&gpio, 0, 2, gpio_flags::output};
+	inline constinit gpio_pin uart0_rx_pin{&gpio, 1, 2, gpio_flags::input | gpio_flags::pull_up};
+	inline constinit gpio_pin led_pin{&gpio, 25, 5, gpio_flags::output};
 
 	inline constinit pl011_uart uart0{0x40034000, {&uart0_rx_pin, &uart0_tx_pin}, &uart0_reset};
 
@@ -60,6 +62,8 @@ namespace tart {
 		adc_clk.start();
 		rtc_clk.start();
 		peri_clk.start();
+
+		gpio.init();
 
 		led_pin.configure();
 		led_pin.set(true);
