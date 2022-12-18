@@ -9,6 +9,7 @@ namespace tart {
 	inline constinit rp2_gpio gpio{0xd0000000, 0x4001c000, 0x40014000};
 	inline constinit gpio_pin uart0_tx_pin{&gpio, 0, 2, gpio_flags::output};
 	inline constinit gpio_pin uart0_rx_pin{&gpio, 1, 2, gpio_flags::input | gpio_flags::pull_up};
+	inline constinit gpio_pin led_pin{&gpio, 25, 5, gpio_flags::output};
 
 	inline constinit rp2_resets resets{0x4000c000};
 	inline constinit block_reset sys_pll_reset{&resets, 12, 0};
@@ -59,6 +60,9 @@ namespace tart {
 		adc_clk.start();
 		rtc_clk.start();
 		peri_clk.start();
+
+		led_pin.configure();
+		led_pin.set(true);
 
 		uart0.configure(b115200_8n1);
 	}
