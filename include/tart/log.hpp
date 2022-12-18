@@ -7,7 +7,7 @@ namespace tart {
 struct log_sink {
 	virtual void blocking_write(const char *msg) = 0;
 protected:
-	virtual ~log_sink() = default;
+	~log_sink() = default;
 };
 
 struct info_sink {
