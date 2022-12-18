@@ -63,10 +63,8 @@ struct rp2_pll_params {
 };
 
 struct rp2_pll final : clk {
-	rp2_pll(uintptr_t base, rp2_pll_params params, block_reset *reset)
+	constexpr rp2_pll(uintptr_t base, rp2_pll_params params, block_reset *reset)
 	: clk{nullptr}, space_{base}, params_{params}, reset_{reset} { }
-
-	virtual ~rp2_pll() = default;
 
 	int64_t freq() const override { return params_.actual_clk; }
 	void start() override;

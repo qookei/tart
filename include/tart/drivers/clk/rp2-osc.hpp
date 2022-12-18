@@ -6,10 +6,8 @@
 namespace tart {
 
 struct rp2_xosc final : clk {
-	rp2_xosc(uintptr_t base, int64_t freq)
+	constexpr rp2_xosc(uintptr_t base, int64_t freq)
 	: clk{nullptr}, freq_{freq}, space_{base} { }
-
-	virtual ~rp2_xosc() = default;
 
 	int64_t freq() const override { return freq_; }
 	void start() override;

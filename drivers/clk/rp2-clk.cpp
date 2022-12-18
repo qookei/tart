@@ -88,7 +88,7 @@ namespace {
 	}
 
 	inline constexpr frg::tuple<uint8_t, uint8_t> determine_src_aux(
-			tart::rp2_clk *clk,
+			const tart::rp2_clk *clk,
 			const tart::rp2_clk_attachments &attachments) {
 		switch (clk->id()) {
 			using enum tart::rp2_clk_id;
@@ -126,7 +126,7 @@ namespace tart {
 //			;
 //	}
 
-void rp2_clk_controller::start(rp2_clk *clk) {
+void rp2_clk_controller::start(const rp2_clk *clk) {
 	auto space = reg::clk_space(space_, clk->id());
 	auto [src, aux] = determine_src_aux(clk, attachments_);
 
@@ -165,7 +165,7 @@ void rp2_clk_controller::start(rp2_clk *clk) {
 	space.store(reg::div, div);
 }
 
-void rp2_clk_controller::stop(rp2_clk *clk) {
+void rp2_clk_controller::stop(const rp2_clk *clk) {
 	auto space = reg::clk_space(space_, clk->id());
 
 	space.store(reg::ctrl, space.load(reg::ctrl)

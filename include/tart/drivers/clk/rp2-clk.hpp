@@ -34,11 +34,11 @@ struct rp2_clk_attachments {
 };
 
 struct rp2_clk_controller final {
-	rp2_clk_controller(uintptr_t base, rp2_clk_attachments attachments)
+	constexpr rp2_clk_controller(uintptr_t base, rp2_clk_attachments attachments)
 	: space_{base}, attachments_{attachments} { }
 
-	void start(rp2_clk *clk);
-	void stop(rp2_clk *clk);
+	void start(const rp2_clk *clk);
+	void stop(const rp2_clk *clk);
 
 private:
 	// TODO(qookie): Remove the :: prefix once tart::arch is gone.
@@ -48,10 +48,8 @@ private:
 };
 
 struct rp2_clk final : clk {
-	rp2_clk(rp2_clk_controller *ctrl, clk *from, int64_t target_clk, rp2_clk_id id)
+	constexpr rp2_clk(rp2_clk_controller *ctrl, const clk *from, int64_t target_clk, rp2_clk_id id)
 	: clk{from}, ctrl_{ctrl}, target_clk_{target_clk}, id_{id} { }
-
-	virtual ~rp2_clk() = default;
 
 	int64_t freq() const override {
 		return target_clk_;
