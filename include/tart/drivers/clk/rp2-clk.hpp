@@ -40,6 +40,10 @@ struct rp2_clk_controller final {
 	void start(const rp2_clk *clk);
 	void stop(const rp2_clk *clk);
 
+	// Switch the necessary clocks (REF and SYS) to the internal
+	// oscillator for when we're configuring the PLLs and external osc.
+	void preinit_clks_to_internal();
+
 private:
 	// TODO(qookie): Remove the :: prefix once tart::arch is gone.
 	::arch::mem_space space_;

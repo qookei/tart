@@ -117,15 +117,6 @@ namespace {
 
 namespace tart {
 
-//	void set_source(uintptr_t clock, uint8_t src) {
-//		auto space = clocks_space.subspace(clock);
-//		space.store(reg::ctrl, space.load(reg::ctrl)
-//				/ ctrl::src(src));
-
-//		while (!(space.load(reg::selected) & (1 << src)))
-//			;
-//	}
-
 void rp2_clk_controller::start(const rp2_clk *clk) {
 	auto space = reg::clk_space(space_, clk->id());
 	auto [src, aux] = determine_src_aux(clk, attachments_);
@@ -170,6 +161,24 @@ void rp2_clk_controller::stop(const rp2_clk *clk) {
 
 	space.store(reg::ctrl, space.load(reg::ctrl)
 			/ ctrl::enable(false));
+}
+
+void rp2_clk_controller::preinit_clks_to_internal() {
+	auto switch_one_clk = [this] (rp2_clk_id id) {
+		auto space = reg::clk_space(space_, id);
+
+		space.store(reg::ctrl, space.load(reg::ctrl)
+			/ ctrl::src(0));
+
+		while (!(space.load(reg::selected) & (1 << 0)))
+			;
+	};
+
+	// Switch CLK_REF to ROSC (src 0)
+	switch_one_clk(rp2_clk_id::ref);
+
+	// Switch CLK_SYS to CLK_REF (src 0)
+	switch_one_clk(rp2_clk_id::sys);
 }
 
 } // namespace tart
