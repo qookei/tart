@@ -15,11 +15,10 @@ SECTIONS {
 	} >rom
 
 	.init_array : {
-		. = ALIGN(4);
-		__init_array_start = .;
-		KEEP (*(SORT(.init_array.*)))
-		KEEP (*(.init_array))
-		__init_array_end = .;
+		PROVIDE_HIDDEN (__init_array_start = .);
+		KEEP (*(SORT_BY_INIT_PRIORITY(.init_array.*) SORT_BY_INIT_PRIORITY(.ctors.*)))
+		KEEP (*(.init_array .ctors))
+		PROVIDE_HIDDEN (__init_array_end = .);
 	} >rom
 
 	. = ALIGN(4);

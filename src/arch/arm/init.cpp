@@ -22,11 +22,11 @@ extern "C" void reset_handler() {
 			reinterpret_cast<uintptr_t>(&__bss_end)
 			- reinterpret_cast<uintptr_t>(&__bss_start));
 
-	tart::init();
-
 	for (auto ctor = &__init_array_start; ctor < &__init_array_end; ctor++) {
 		(*ctor)();
 	}
+
+	tart::init();
 
 	lib_main();
 
