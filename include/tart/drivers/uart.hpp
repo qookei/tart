@@ -33,15 +33,13 @@ namespace tart {
 		virtual size_t try_read(void *data, size_t size) = 0;
 
 		void blocking_write(const void *data, size_t size) {
+			auto cur = reinterpret_cast<const char *>(data);
 			size_t progress = 0;
-			const void *cur = data;
 
 			while (progress < size) {
 				auto written = try_write(cur, size - progress);
 				progress += written;
-				cur = reinterpret_cast<const void *>(
-					reinterpret_cast<uintptr_t>(data)
-						+ written);
+				cur += written;
 			}
 		}
 
