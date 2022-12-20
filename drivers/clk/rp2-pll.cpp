@@ -29,6 +29,9 @@ namespace {
 namespace tart {
 
 void rp2_pll::start() {
+	if (reset_)
+		reset_->reset();
+
 	space_.store(reg::cs, cs::refdiv(1));
 	space_.store(reg::fbdiv_int, params_.fbdiv);
 
