@@ -45,9 +45,6 @@ namespace irqs {
 namespace tart {
 
 void pl011_uart::configure(uart_params params) {
-	// TODO(qookie): Use given clock once it's there
-	constexpr uint32_t clock = 125000000;
-
 	if (reset_)
 		reset_->reset();
 
@@ -59,9 +56,9 @@ void pl011_uart::configure(uart_params params) {
 
 	space_.store(reg::control, control::uart_en(false));
 
-	uint64_t int_part = clock / (16 * params.baud_rate);
+	uint64_t int_part = clock_->freq() / (16 * params.baud_rate);
 
-	uint64_t frac_part = (((clock * 1000) / (16 * params.baud_rate) - (int_part * 1000))
+	uint64_t frac_part = (((clock_->freq() * 1000) / (16 * params.baud_rate) - (int_part * 1000))
 		* 64 + 500) / 1000;
 
 	space_.store(reg::i_baud, int_part);

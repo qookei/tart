@@ -1,6 +1,7 @@
 #pragma once
 
 #include <tart/drivers/uart.hpp>
+#include <tart/drivers/clk.hpp>
 #include <tart/drivers/reset.hpp>
 
 #include <stdint.h>
@@ -10,9 +11,8 @@
 
 namespace tart {
 	struct pl011_uart final : uart {
-		// TODO(qookie): Add clock argument
-		constexpr pl011_uart(uintptr_t base, uart_gpios gpios, block_reset *reset)
-		: uart{gpios}, space_{base}, reset_{reset} { }
+		constexpr pl011_uart(uintptr_t base, uart_gpios gpios, block_reset *reset, clk *clock)
+		: uart{gpios}, space_{base}, reset_{reset}, clock_{clock} { }
 
 		~pl011_uart() = default;
 
@@ -27,5 +27,6 @@ namespace tart {
 
 		::arch::mem_space space_;
 		block_reset *reset_;
+		clk *clock_;
 	};
 } // namespace uart

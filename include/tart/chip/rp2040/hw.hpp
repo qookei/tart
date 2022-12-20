@@ -19,8 +19,6 @@ namespace tart {
 	inline constinit gpio_pin uart0_rx_pin{&gpio, 1, 2, gpio_flags::input | gpio_flags::pull_up};
 	inline constinit gpio_pin led_pin{&gpio, 25, 5, gpio_flags::output};
 
-	inline constinit pl011_uart uart0{0x40034000, {&uart0_rx_pin, &uart0_tx_pin}, &uart0_reset};
-
 	inline constinit rp2_xosc xosc{0x40024000, 12_MHz};
 
 	inline constexpr rp2_pll_params sys_pll_params =
@@ -48,6 +46,8 @@ namespace tart {
 	inline constinit rp2_clk sys_clk{&clk_ctrl, &sys_pll, 125_MHz, rp2_clk_id::sys};
 	inline constinit rp2_clk ref_clk{&clk_ctrl, &xosc, 12_MHz, rp2_clk_id::ref};
 	inline constinit rp2_clk peri_clk{&clk_ctrl, &sys_clk, 125_MHz, rp2_clk_id::peri};
+
+	inline constinit pl011_uart uart0{0x40034000, {&uart0_rx_pin, &uart0_tx_pin}, &uart0_reset, &peri_clk};
 
 	inline void hw_initialize() {
 		clk_ctrl.preinit_clks_to_internal();
