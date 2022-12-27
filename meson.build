@@ -25,6 +25,7 @@ subdir('src/arch')
 frigg = subproject('frigg', default_options: ['frigg_no_install=true'])
 cxxshim = subproject('cxxshim')
 libarch = subproject('libarch', default_options: ['install_headers=false'])
+libasync = subproject('libasync')
 
 frigg_dep = frigg.get_variable('frigg_dep')
 cxxshim_dep = cxxshim.get_variable('cxxshim_dep')
@@ -40,7 +41,7 @@ if get_option('enc28j60-tell-me-more')
 endif
 
 libarch_dep = libarch.get_variable('libarch_dep')
-libasync_inc = include_directories('subprojects/libasync/include')
+libasync_dep = libasync.get_variable('libasync_dep')
 
 sources += [
 	files(
@@ -60,9 +61,9 @@ sources += [
 
 
 tart_core_dep = declare_dependency(
-	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep],
+	dependencies: [frigg_dep, cxxshim_dep, cxxshim_coro_dep, libarch_dep, libasync_dep],
 	compile_args: cpp_args,
-	include_directories: [includes, libasync_inc])
+	include_directories: [includes])
 
 lib = static_library('tart', sources,
 		dependencies: tart_core_dep,
@@ -77,6 +78,6 @@ tart_dep = declare_dependency(link_whole: lib,
 	dependencies: [tart_core_dep, rp2_gpio_dep, rp2_resets_dep, pl011_uart_dep, rp2_osc_dep, rp2_pll_dep, rp2_clk_dep, freestanding_startup_dep, rp2_stage1_dep],
 	link_args: link_args,
 	compile_args: cpp_args,
-	include_directories: [includes, libasync_inc])
+	include_directories: [includes])
 
 subdir('examples/hello')
