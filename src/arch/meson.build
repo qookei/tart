@@ -3,5 +3,5 @@ if arch == 'arm'
 	link_args += ['-T', ld_path]
 	link_depends += files(ld_path)
 
-	sources += files('arm/memory.cpp', 'arm/handlers.cpp', 'arm/systick.cpp') # 'arm/init.cpp', 'arm/vector.cpp'
+	sources += files('arm/handlers.cpp') # 'arm/init.cpp', 'arm/systick.cpp'
 endif

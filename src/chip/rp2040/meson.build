@@ -5,7 +5,6 @@ link_depends += files(ld_path)
 c = find_program('c')
 
 sources += files(
-	'irq.cpp',
 	'atomic.cpp'
 )
 

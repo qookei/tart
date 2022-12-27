@@ -1,5 +1,4 @@
 #include <tart/init.hpp>
-#include <tart/arch/init.hpp>
 
 #include <tart/main.hpp>
 
@@ -11,7 +10,6 @@
 namespace tart {
 
 void init() {
-	//arch::init();
 	init_alloc();
 
 	if (user_init)
