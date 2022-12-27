@@ -7,6 +7,7 @@ rp2_stage1_blob_gen = generator(
 
 rp2_stage1_w25q080_lib = static_library('tart-rp2-stage1-w25q080',
 	'stage1.cpp', rp2_stage1_blob_gen.process('stage1-w25q080.S'),
-	dependencies : tart_core_dep)
+	dependencies : tart_core_dep,
+	pic : false)
 
 rp2_stage1_dep = declare_dependency(link_whole : rp2_stage1_w25q080_lib)
