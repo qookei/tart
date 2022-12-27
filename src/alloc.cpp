@@ -3,8 +3,6 @@
 
 #include <frg/manual_box.hpp>
 
-#include <tart/chip/memory.hpp>
-
 namespace tart {
 
 uintptr_t bump_policy::map(size_t size, size_t align) {
@@ -38,11 +36,13 @@ allocator &alloc() {
 	return *alloc_;
 }
 
-void init_alloc() {
-	auto [start, end] = chip::get_heap_area();
+extern "C" char __image_ram_end[];
+extern "C" char ram_end[];
 
-	info() << "tart: initializing heap 0x" << frg::hex_fmt{start}
-		<< "-0x" << frg::hex_fmt{end} << frg::endlog;
+void init_alloc() {
+	auto start = reinterpret_cast<uintptr_t>(__image_ram_end);
+	auto end = reinterpret_cast<uintptr_t>(ram_end);
+
 	policy_.initialize(start, end);
 	pool_.initialize(*policy_);
 	alloc_.initialize(pool_.get());

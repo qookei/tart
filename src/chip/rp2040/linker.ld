@@ -8,3 +8,4 @@ MEMORY {
 
 PROVIDE(core0_stack = ORIGIN(scratch0) + LENGTH(scratch0));
 PROVIDE(core1_stack = ORIGIN(scratch1) + LENGTH(scratch1));
+PROVIDE(ram_end = ORIGIN(ram) + LENGTH(ram));

@@ -6,7 +6,6 @@ c = find_program('c')
 
 sources += files(
 	'irq.cpp',
-	'memory.cpp',
 	'atomic.cpp'
 )
 
