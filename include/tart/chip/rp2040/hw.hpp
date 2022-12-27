@@ -5,7 +5,12 @@
 #include <tart/drivers/clk/rp2-pll.hpp>
 #include <tart/drivers/clk/rp2-clk.hpp>
 
+#include <tart/drivers/boot/arm-vector-table.hpp>
+
 namespace tart {
+	[[gnu::section(".vectors"), gnu::used]]
+	inline constinit auto vtor = arm_vector_table<26>::generate();
+
 	inline constinit rp2_resets resets{0x4000c000};
 	inline constinit block_reset sys_pll_reset{&resets, 12, 0};
 	inline constinit block_reset usb_pll_reset{&resets, 13, 0};

@@ -1,5 +1,4 @@
-EXTERN (vector_table)
-ENTRY (reset_handler)
+ENTRY (_start)
 
 SECTIONS {
 	.pre : {

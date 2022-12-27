@@ -11,7 +11,7 @@
 namespace tart {
 
 void init() {
-	arch::init();
+	//arch::init();
 	init_alloc();
 
 	if (user_init)
