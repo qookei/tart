@@ -45,3 +45,5 @@ rp2_clk_dep = declare_dependency(link_with : rp2_clk_lib)
 freestanding_startup_lib = static_library('tart-freestanding-startup', 'boot/freestanding-startup.cpp',
 	dependencies : tart_core_dep)
 freestanding_startup_dep = declare_dependency(link_with : freestanding_startup_lib)
+
+subdir('boot/rp2-stage1')

@@ -79,7 +79,7 @@ constexpr frg::array<uint8_t, N> to_array(const uint8_t (&arr)[N]) {
 
 constexpr auto pick_stage1() {
 	uint8_t blob_w25q080[] = {
-		#include <blob-stage1-w25q080.h>
+		#include <blob-rp2-stage1-w25q080.h>
 	};
 
 	if constexpr (true /* want_w25q080_blob */)
@@ -99,5 +99,9 @@ constexpr frg::array<uint8_t, 256> generate_stage1() {
 
 } // namespace anonymous
 
+namespace tart {
+
 [[gnu::section(".pre"), gnu::used]]
-constinit auto stage1_blob = generate_stage1();
+constinit auto rp2_stage1_blob = generate_stage1();
+
+} // namespace tart
