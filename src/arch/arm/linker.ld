@@ -1,7 +1,7 @@
 ENTRY (_start)
 
 SECTIONS {
-	.pre : {
+	.pre (READONLY) : {
 		KEEP (*(.pre))
 	} >rom
 
